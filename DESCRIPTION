@@ -1,0 +1,12 @@
+Package: mechkar
+Type: Package
+Title: Set of utilities to help managing different stages of the research process
+Version: 1.2
+Date: 2016-12-20
+Author: Tomas Karpati MD
+Maintainer: Tomas Karpati MD <TomasKa@clalit.org.il>
+Depends: car, sqldf, ROSE, pROC, ResourceSelection, sjmisc, InformationValue
+Suggests: xlsx
+Description: This package contains utilities that help researchers in their research work.
+License: GPL-2
+LazyData: true
