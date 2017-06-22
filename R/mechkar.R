@@ -949,7 +949,7 @@ rf2sql <- function (model, file) {
   # close the file
   sink()
   #if (model$type == "classification")
-  }
+}
 
 ##################
 recurse.rf <- function(model, tree.data, tree.row.num, ind=0) {
