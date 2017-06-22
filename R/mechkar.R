@@ -1301,12 +1301,12 @@ modelValidity <- function(data,model,class) {
   require("InformationValue")
   require("sjstats")
   require("sjmisc")
-  if('randomForest' %in% class(model)) {
-    pred <- predict(model, newdata=data)
-  } else if('glm' %in% class(model)) {
-    pred <- predict(model, newdata=data, type="response")
+  if(model$call[1]=="glm()") {
+      pred <- predict(model, newdata=data, type="response")
+  } else if (model$call[1]=="randomForest()") {
+      pred <- predict(model, newdata=data)
   } else {
-    pred <- predict(model, newdata=data, type="prob")[,2]
+      pred <- predict(model, newdata=data, type="prob")[,2]
   }
   roc1 <- roc(data[,class], as.numeric(pred))
   acc <- accuracy.meas(data[,class], pred)
