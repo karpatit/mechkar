@@ -1301,7 +1301,7 @@ modelValidity <- function(data,model,class) {
   require("InformationValue")
   require("sjstats")
   require("sjmisc")
-  if(model$call[1]=="glm()") {
+  if('glm' %in% class(model) | 'randomForest' %in% class(model)) {
     pred <- predict(model, newdata=data, type="response")
   } else {
     pred <- predict(model, newdata=data, type="prob")[,2]
