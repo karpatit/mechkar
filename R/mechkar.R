@@ -513,7 +513,9 @@ Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=FALSE, f
   } else {
     return(tabaaa1)
   }
+ }
 }
+
 ########################## END Table1 ###############
 
  
