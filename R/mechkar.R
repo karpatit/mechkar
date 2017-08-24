@@ -1399,3 +1399,45 @@ function(dataset,outcome,age,agemin=0,agemax=130,source="clalit") {
   g1 <- cbind(outcome=outcome,pop=t1,events=evnt1,crude=res1[1],crude_ci=unw1,weighted=res1[2],wgt_ci=wgt1)
   return(g1)
 }
+
+############################################################################
+#####   getMissingness                                                  ####
+#####   Author: Tomas Karpati M.D.                                      ####
+#####   Creation date: 2017-08-24                                       ####
+############################################################################
+
+### search for the number & % of missinf
+### then count the number of rows with complete data
+getMissingness <- function(data, getRows=FALSE) {
+  l <- nrow(data)
+  vn <- names(data)
+  ### copy the dataset and replace the NAs by 1 else 0
+  nadf <- data
+  cnt <- NULL
+  miss <- function(x) return(sum(is.na(x) ))
+  for(n in vn) {
+    nadf[[n]] <- ifelse(is.na(nadf[[n]])==T,1,0)
+    cnt <- rbind(cnt, data.frame(n,sum(nadf[[n]])))
+  }
+  #cnt <- data.frame(cnt)
+  names(cnt) <- c("var","na.count")
+  cnt$rate <- round((cnt$na.count / nrow(nadf))*100,1)
+  ### now sum by column
+  nadf$na.cnt <- 0
+  nadf$na.cnt <- rowSums(nadf)
+  ### order descending the count of mossings and leave only those with missings
+  cnt <- cnt %>%
+    arrange(desc(na.count)) %>%
+    filter(na.count>0)
+  #nadf <- nadf %>% filter(na.cnt==0)
+  #totmiss <- nrow(nadf)
+  totmiss <- nadf %>% filter(na.cnt==0) %>% tally()
+  idx <- NULL
+  msg <- (paste("This dataset has", as.character(totmiss),"complete rows"))
+  if(getRows==TRUE & totmiss != 0) {
+    nadf$rn <- row.names(nadf)
+    idx <- nadf %>% filter(na.cnt==0) %>% select(rn)
+  }
+  print(list(head(cnt,n=10), msg))
+  return(list(cnt, msg, idx))
+}
