@@ -303,9 +303,15 @@ Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=FALSE, f
   options(warn=-1)
   g1 <- function(var)c(Mean=mean(var,na.rm=TRUE), SD=sd(var,na.rm=TRUE))
   g2 <- function(var)c(Median=median(var,na.rm=TRUE), IQR=quantile(var,c(0.25,0.75),na.rm=TRUE))
+ 
   ### function for transforming variables to factors
-  setFactors <- function(data, factorVars, catmiss, maxcat) {
-    if(is.null(factorVars)==T) {factorVars <- names(data)}
+  setFactors <- function(data=data, factorVars=factorVars, catmiss=catmiss, maxcat=maxcat) {
+    #print(factorVars)
+    if(is.null(factorVars)==T) {
+      aa <- sapply(sapply(data, unique), length)
+      factorVars <- names(which(aa <= maxcat))
+    }
+    #print(factorVars)
     for (v in factorVars) {
       ct <- ifelse( ((is.null(factorVars)==F & (v %in% factorVars)) |  (is.null(factorVars)==T & length(unique(data[[v]])) <= maxcat)),1,0)
       if (ct == 1) {
@@ -322,6 +328,7 @@ Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=FALSE, f
   if (categorize == T | is.null(factorVars)==F ) {
     data <- setFactors(data, factorVars, catmiss, maxcat)
   }
+ 
   getSimpleTable <- function(x=x, rn=rn, data=data, miss=miss, catmiss=catmiss,formatted=formatted,categorize=categorize,maxcat=maxcat) {
     if (is.null(rn)==TRUE) { rn <- x}
     ### define the column names
@@ -340,7 +347,11 @@ Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=FALSE, f
         ### define if the actual variable has to be treated as numeric or factor
         ct <- ifelse(is.numeric(data[[v]])==T & categorize==T & ((is.null(factorVars)==F & (v %in% factorVars)) |  (is.null(factorVars)==T & length(unique(data[[v]])) <= maxcat)),1,0)
         ### treat as numeric
-        if (is.numeric(data[[v]])==T & ct==0) {
+        if (length(unique(data[v]))==0) {
+          print(paste("The variable",v,"has no data... avoided"))
+        } else if (inherits(data[[v]], "Date")==TRUE) {
+          print(paste("The variable",v,"is a date. Dates are not allowed in Table1... avoided"))
+        } else if (is.numeric(data[[v]])==T & ct==0) {
           ## report mean and standard deviation
           t_n <- g1(data[[v]])
           tp <- paste(format(round(t_n[1],1),nsmall=1,big.mark=",")," (", format(round(t_n[2],1),nsmall=1,big.mark=","),")",sep="")
@@ -410,6 +421,9 @@ Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=FALSE, f
       }
       q <- q + 1
     }
+    #row.names(tableaaaa) <- rn
+    #table1 <- data.frame(tableaaaa)
+    #table2 <- data.frame(tablebbbb)
     if(formatted==TRUE) {
       return(tableaaaa)
     } else {
@@ -437,9 +451,9 @@ Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=FALSE, f
               ### first check for homoscedasticity
               if (bartlett.test(data[[v]],data[[y]])[3] >= 0.05) {
                 ### homoskedasticity
-                pval <- round(as.numeric(Anova(lm(data[[v]]~data[[y]]))[1,4]),3)
+                pval <- round(as.numeric(car::Anova(lm(data[[v]]~data[[y]]))[1,4]),3)
               } else {
-                pval <- round(as.numeric(Anova(lm(data[[v]]~data[[y]]),white.adjust=TRUE)[1,3]),3)
+                pval <- round(as.numeric(car::Anova(lm(data[[v]]~data[[y]]),white.adjust=TRUE)[1,3]),3)
               }
             } else if (length(unique(data[[v]]))==1) {
               pval <- NA 
@@ -455,6 +469,8 @@ Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=FALSE, f
           }
           q <- q + 1
         }
+      }# else {
+      #  print("The variable",y,"doesn't exists in the dataset!. Please check...")
     }
     return(ptab)
   }
@@ -513,9 +529,8 @@ Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=FALSE, f
   } else {
     return(tabaaa1)
   }
- }
 }
-
+ 
 ########################## END Table1 ###############
 
  
@@ -617,11 +632,12 @@ glm2sql <- function(glm.model, digits) {
   # Store the variable names
   var.names <- rownames(summary(glm.model)$coefficients)
   # Concatenate the coefficients and variable names
-  sql.var <- paste(coeff[-1], "*" ,var.names[-1], "+", collapse = " ")
+  sql.var <- paste("(", coeff[-1], "*" ,var.names[-1], ") + \n", collapse = " ")
   # Concatenate the SQL syntax and add the intercept
-  sql.statement <- paste("SELECT 1 / (1 + exp(", sql.var, coeff[1], "))")
+  sql.statement <- paste("SELECT 1 - (1 / (1 + exp(", sql.var, coeff[1], "))")
   # Apply any interaction correction
   sql.statement <- interaction.correction(sql.statement)
+  sql.statement <- paste(sql.statement, ") AS prediction")
   return(sql.statement)
 }
 
@@ -640,12 +656,12 @@ coxph2sql <- function(cox.model, digits) {
   # Store the variable names
   var.names <- names(cox.model$coefficients)
   # Concatenate the coefficients and variable names
-  sql.var <- paste(coeff[-1], "*" ,var.names[-1], "+", collapse = " ")
+  sql.var <- paste("(",coeff[-1], "*" ,var.names[-1], ") + \n", collapse = " ")
   # Concatenate the SQL syntax and add the intercept
-  sql.statement <- paste("SELECT 1 / (1 + exp(", sql.var, coeff[1], "))")
+  sql.statement <- paste("SELECT 1 - (1 / (1 + exp(", sql.var, coeff[1], "))")
   # Apply any interaction correction
   sql.statement <- interaction.correction(sql.statement)
-  sql.statement <- paste(sql.statement, " AS prediction")
+  sql.statement <- paste(sql.statement, ") AS prediction")
   return(sql.statement)
 }
 
@@ -733,7 +749,7 @@ tree2sql <- function(dtree, outcome.name) {
     # Node -> Node
     if (curr.state == 0 & next.state == 0) {
       # Write statement
-      statement.i <- paste(" ", tabs, "CASE WHEN", rule.i, "THEN")
+      statement.i <- paste(" ", tabs, "CASE WHEN ", rule.i, " THEN ")
       sql.statement <- paste(sql.statement, statement.i)
       # Increment branch depth
       branch.depth <- branch.depth + 1
@@ -743,7 +759,7 @@ tree2sql <- function(dtree, outcome.name) {
     if (curr.state == 0 & next.state == 1) {
       # Write statement
       pred.i <- stack[i, "pred"]
-      statement.i <- paste(" ", tabs, "CASE WHEN", rule.i, "THEN", pred.i)
+      statement.i <- paste(" ", tabs, "CASE WHEN ", rule.i, " THEN ", pred.i)
       sql.statement <- paste(sql.statement, statement.i)
       # Increment branch depth
       branch.depth <- branch.depth + 1
@@ -752,7 +768,7 @@ tree2sql <- function(dtree, outcome.name) {
     # Leaf -> Node Transition
     if (curr.state == 1 & next.state == 0) {
       # Write statement
-      statement.i <- paste(" ", tabs, "WHEN", rule.i, "THEN")
+      statement.i <- paste(" ", tabs, " WHEN ", rule.i, " THEN ")
       sql.statement <- paste(sql.statement, statement.i)
       next()
     }
@@ -760,10 +776,10 @@ tree2sql <- function(dtree, outcome.name) {
     if (curr.state == 1 & next.state == 1) {
       # Write statement
       pred.i <- stack[i, "pred"]
-      statement.i <- paste(" ", tabs, "WHEN", rule.i, "THEN", pred.i)
+      statement.i <- paste(" ", tabs, " WHEN ", rule.i, " THEN ", pred.i)
       sql.statement <- paste(sql.statement, statement.i)
       # Close 1 open CASE statement
-      sql.statement <- paste(sql.statement, " ", tabs, "END")
+      sql.statement <- paste(sql.statement, " ", tabs, "  END")
       # Decrement the branch.depth
       branch.depth <- branch.depth - 1
       next()
@@ -773,7 +789,7 @@ tree2sql <- function(dtree, outcome.name) {
 
   termination <- paste(rep(" END", times = branch.depth), collapse='')
   # Throw on the outcomes name
-  sql.statement <- paste("SELECT", sql.statement, termination, "AS", outcome.name)
+  sql.statement <- paste("SELECT", sql.statement, termination, "AS ", outcome.name)
   return(sql.statement)
 }
 
@@ -843,7 +859,7 @@ ctree2sql <- function(mod, out) {
   {
     if (nodes(mytree, node_id)[[1]]$terminal) {
       prediction <- btree_prediction(mytree, node_id)
-      sprediction <- paste('WHEN ', parent_criteria, 'THEN ',prediction )
+      sprediction <- paste(' WHEN ', parent_criteria, ' THEN ',prediction )
       return (sprediction)
     }
     left_node_id <- btree_left(mytree, node_id)
@@ -866,7 +882,7 @@ ctree2sql <- function(mod, out) {
     }
     return(sprediction)
   }
-  sql <- paste("CASE", walk_node(mod), "END AS ",out)
+  sql <- paste("CASE ", walk_node(mod), " END AS ",out)
   return(sql)
 }
 
@@ -899,12 +915,12 @@ rf2sql <- function (model, file) {
       split.point <- tree.row[,"split point"]
       if(tree.row[,"status"] != -1) {  # splitting node
         if(is.numeric(unlist(model$forest$xlevels[split.var]))) {
-          cat(paste("\n",indent.str,"CASE WHEN", gsub("[.]","_",split.var), "IS NULL THEN NULL",
-                    "\n",indent.str,"WHEN", gsub("[.]","_",split.var), "<=", split.point, "THEN "))
+          cat(paste("\n",indent.str,"CASE WHEN ", gsub("[.]","_",split.var), " IS NULL THEN NULL",
+                    "\n",indent.str," WHEN ", gsub("[.]","_",split.var), "<=", split.point, " THEN "))
           recurse.rf(model, tree.data, tree.row[,"left daughter"], ind=(ind+1))
-          cat("\n",indent.str,"ELSE ")
+          cat("\n",indent.str," ELSE ")
           recurse.rf(model, tree.data, tree.row[,"right daughter"], ind=(ind+1))
-          cat("END ")
+          cat(" END ")
         } else {  # categorical
           # function to convert from binary coding to the category values it represents
           conv.to.binary <- function (ncat, num.to.convert) {
@@ -930,11 +946,11 @@ rf2sql <- function (model, file) {
                     paste(categ.values[categ.flags], sep="", collapse="', '"),  #FIXME replace quotes dependant on var type
                     "') THEN ", sep=""))
           recurse.rf(model, tree.data, tree.row[,"left daughter"], ind=(ind+1))
-          cat(paste("\n",indent.str,"WHEN ", gsub("[.]","_",split.var), " IN ('",
+          cat(paste("\n",indent.str," WHEN ", gsub("[.]","_",split.var), " IN ('",
                     paste(categ.values[!categ.flags], sep="", collapse="', '"),
                     "') THEN ", sep=""))
           recurse.rf(model, tree.data, tree.row[,"right daughter"], ind=(ind+1))
-          cat(paste("\n", indent.str,"ELSE NULL END ", sep="")) #FIXME: null or a new category
+          cat(paste("\n", indent.str," ELSE NULL END ", sep="")) #FIXME: null or a new category
         }
       } else { # terminal node
         if (is.numeric(tree.data$prediction)) {
@@ -961,12 +977,12 @@ recurse.rf <- function(model, tree.data, tree.row.num, ind=0) {
   split.point <- tree.row[,"split point"]
   if(tree.row[,"status"] != -1) {  # splitting node
     if(is.numeric(unlist(model$forest$xlevels[split.var]))) {
-      cat(paste("\n",indent.str,"CASE WHEN", gsub("[.]","_",split.var), "IS NULL THEN NULL",
-                "\n",indent.str,"WHEN", gsub("[.]","_",split.var), "<=", split.point, "THEN "))
+      cat(paste("\n",indent.str," CASE WHEN ", gsub("[.]","_",split.var), " IS NULL THEN NULL ",
+                "\n",indent.str," WHEN ", gsub("[.]","_",split.var), "<=", split.point, " THEN "))
       recurse.rf(model, tree.data, tree.row[,"left daughter"], ind=(ind+1))
-      cat("\n",indent.str,"ELSE ")
+      cat("\n",indent.str," ELSE ")
       recurse.rf(model, tree.data, tree.row[,"right daughter"], ind=(ind+1))
-      cat("END ")
+      cat(" END ")
     } else {  # categorical
       # function to convert from binary coding to the category values it represents
       conv.to.binary <- function (ncat, num.to.convert) {
@@ -988,15 +1004,15 @@ recurse.rf <- function(model, tree.data, tree.row.num, ind=0) {
       categ.bin <- conv.to.binary(model$forest$ncat[split.var], split.point)   
       categ.flags <- (categ.bin[length(categ.bin):1] == 1)
       categ.values <- unlist(model$forest$xlevels[split.var])
-      cat(paste("\n",indent.str,"CASE WHEN ", gsub("[.]","_",split.var), " IN ('",
+      cat(paste("\n",indent.str," CASE WHEN ", gsub("[.]","_",split.var), " IN ('",
                 paste(categ.values[categ.flags], sep="", collapse="', '"),  #FIXME replace quotes dependant on var type
                 "') THEN ", sep=""))
       recurse.rf(model, tree.data, tree.row[,"left daughter"], ind=(ind+1))
-      cat(paste("\n",indent.str,"WHEN ", gsub("[.]","_",split.var), " IN ('",
+      cat(paste("\n",indent.str," WHEN ", gsub("[.]","_",split.var), " IN ('",
                 paste(categ.values[!categ.flags], sep="", collapse="', '"),
                 "') THEN ", sep=""))
       recurse.rf(model, tree.data, tree.row[,"right daughter"], ind=(ind+1))
-      cat(paste("\n", indent.str,"ELSE NULL END ", sep="")) #FIXME: null or a new category
+      cat(paste("\n", indent.str," ELSE NULL END ", sep="")) #FIXME: null or a new category
     }
   } else { # terminal node
     if (is.numeric(tree.data$prediction)) {
@@ -1294,35 +1310,53 @@ ValidityTest <- function (a, b, c, d, multi = 100, caption = "Validity of the Mo
 #####   Creation date: 2016-12-01                                       ####
 ############################################################################
 
-modelValidity <- function(data,model,class) {
+modelValidity <- function (data, model, class, train=FALSE)
+{
   require("ROSE")
   require("pROC")
   require("ResourceSelection")
   require("InformationValue")
   require("sjstats")
   require("sjmisc")
-  if(model$call[1]=="glm()") {
-      pred <- predict(model, newdata=data, type="response")
-  } else if (model$call[1]=="randomForest()") {
-      pred <- predict(model, newdata=data)
-  } else {
-      pred <- predict(model, newdata=data, type="prob")[,2]
+  require("givitiR")
+ 
+  if ("glm" %in% class(model) | "earth" %in% class(model)) {
+    #pred <- predict(model, newdata = data, type = "response")
+    data$pred <- predict(model, newdata = data, type = "response")
   }
-  roc1 <- roc(data[,class], as.numeric(pred))
-  acc <- accuracy.meas(data[,class], pred)
-  hl <- hoslem.test(model$y, fitted(model), g=10)$p.value
-  cm <- table(actual = data[,class], fitted = ifelse(pred>=0.5,1,0))
+  else {
+    #pred <- predict(model, newdata = data, type = "prob")[,2]
+    data$pred <- predict(model, newdata = data, type = "prob")[,2]
+  }
+  data <- subset(data, is.na(data[["pred"]])==F)
+  roc1 <- roc(data[, class], as.numeric(data[["pred"]]))
+  #acc <- accuracy.meas(obs,exp)
+  ### GiViTI calibration test
+  if(train==FALSE) {
+    src="external"
+  } else {
+    src="internal"
+  }
+  if(is.factor(data[,class])==T) {data[,class] <- as.numeric(data[,class])-1}
+  cb <- round(givitiCalibrationTest(o=data[,class],e=data[["pred"]],
+                                    devel=src)$p.value,3)
+  ### Hoslem Lemeshow test
+  hl <- hoslem.test(model$y, fitted(model), g = 10)$p.value
+  cm <- table(actual = data[, class], fitted = ifelse(data[["pred"]] >= 0.5, 1, 0))
   mmce <- 1 - (sum(diag(cm))/sum(cm))
   d <- cod(model)$cod
-  vld <- cbind(auc=roc1$auc,cimin=pROC::ci(roc1)[1],cimax=pROC::ci(roc1)[3],
-               SRME=sqrt((sum((as.numeric(data[,class])-pred)^2))/nrow(data)), # error
-               precision=acc$precision, recall=acc$recall, fscore=acc$F,
-               NPV=npv(data[,class],pred),D=d,mmce=mmce,Hosmer_Lemeshow=hl)
-  vld <- round(vld,3)
+  if (is.factor(data[, class])==T) {data[,class] <- as.numeric(data[, class])-1}
+  acc <- accuracy.meas(data[,class],data[["pred"]])
+  srme <-sqrt((sum((data[, class] - data[["pred"]])^2,na.rm=T))/nrow(data))
+  vld <- cbind(auc = roc1$auc, cimin = pROC::ci(roc1)[1], cimax = pROC::ci(roc1)[3],
+               SRME = srme,
+               precision = acc$precision, recall = acc$recall, fscore = acc$F,
+               NPV = npv(data[, class], data[["pred"]]), D = d, mmce = mmce, Hosmer_Lemeshow = hl,GiViTI_calibration=cb)
+  vld <- round(vld, 3)
   return(vld)
 }
 
-############################################################################
+##########################################################################
 #####   AGE ADJUSTED RATES                                              ####
 #####   Author: Tomas Karpati M.D.                                      ####
 #####   Creation date: 2017-05-07                                       ####
@@ -1409,6 +1443,7 @@ function(dataset,outcome,age,agemin=0,agemax=130,source="clalit") {
 ### search for the number & % of missinf
 ### then count the number of rows with complete data
 getMissingness <- function(data, getRows=FALSE) {
+  require(dplyr)
   l <- nrow(data)
   vn <- names(data)
   ### copy the dataset and replace the NAs by 1 else 0
@@ -1419,7 +1454,6 @@ getMissingness <- function(data, getRows=FALSE) {
     nadf[[n]] <- ifelse(is.na(nadf[[n]])==T,1,0)
     cnt <- rbind(cnt, data.frame(n,sum(nadf[[n]])))
   }
-  #cnt <- data.frame(cnt)
   names(cnt) <- c("var","na.count")
   cnt$rate <- round((cnt$na.count / nrow(nadf))*100,1)
   ### now sum by column
@@ -1429,15 +1463,14 @@ getMissingness <- function(data, getRows=FALSE) {
   cnt <- cnt %>%
     arrange(desc(na.count)) %>%
     filter(na.count>0)
-  #nadf <- nadf %>% filter(na.cnt==0)
-  #totmiss <- nrow(nadf)
   totmiss <- nadf %>% filter(na.cnt==0) %>% tally()
   idx <- NULL
-  msg <- (paste("This dataset has", as.character(totmiss),"complete rows"))
+  msg <- (paste("This dataset has ", as.character(totmiss), " (",as.character(round(totmiss/nrow(data)*100,1)),"%)" ," complete rows. Original data has ",nrow(data)," rows.",sep=""))
+  ### check id needs to return the row indexes
   if(getRows==TRUE & totmiss != 0) {
-    nadf$rn <- row.names(nadf)
+    nadf$rn <- seq_len(nrow(data))
     idx <- nadf %>% filter(na.cnt==0) %>% select(rn)
   }
   print(list(head(cnt,n=10), msg))
-  return(list(cnt, msg, idx))
+  return(list(cnt, msg, idx$rn))
 }
