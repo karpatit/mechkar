@@ -13,9 +13,15 @@ Table1(x=NULL, y=NULL, rn=NULL, data=NULL, miss=1, excel=0, excel_file=NULL)
 \arguments{
 \item{x}{a string vector containing the name of the variables for which descriptive statistics will be calculated.}
 \item{y}{the name of the categorical variable that defines the stratification that will be used.}
-\item{rn}{a string vector containing the text that will replace variables defined in ob x. If y is not provided, the original variable name will be used.
-data the name of the dataset to be used.}
-\item{miss}{determines if missingness will be shown in the table for the variables. The possible values are: 0=don't add missing statistics; 1=add missing statistics for contiinuous (numerical) values only; 2=add missing statistics for categorical (factor) values only;3=add missing statistics for both numerical and categorical values;}
+\item{rn}{a string vector containing the text that will replace variables defined in ob x. If y is not provided, the original variable name will be used.}
+\item{data}{the name of the dataset to be used.}
+\item{miss}{determines if missingness will be shown in the table for the variables. The possible values are: 0=dont add missing statistics; 1=add missing statistics for contiinuous (numerical) values only; 2=add missing statistics for categorical (factor) values only;3=add missing statistics for both numerical and categorical values;}
+\item{catmiss}{On categorical variables, adds a new category (Missing) to the available categories. Default is FALSE. For activation change this to TRUE. If TRUE, the "miss" parameter will not be used for category variables}
+\item{formatted}{As default, the table output is formatted as text with values that include parenthesis and percentages, e.g. 153 (26.5\%). If you are interested that the table return each numeric value as aseparate cell, set this variable to FALSE.}
+\item{categorize=FALSE}{If there are categorical variables that are defined as numeric we can force the function to take them as categorical (factor) by changing this to TRUE. Default is FALSE.}
+\item{factorVars=FALSE}{If categorize is set to TRUE, a list of variables to be considered as categoricals may be given. In this case, maxcat will not be used and only the variables in the list will be converted to factors.}
+\item{maxcat=10}{If we force categorize to be TRUE, maxcat will be used to define the maximum number of unique values permited for a variable to be considered as categorical. Default is 10.}
+\item{delzero=TRUE}{For dichotomic variables, the default behaviour is to delete the rows with the first value (0,"No","Normal",etc.). If you want that all the values are presented change it to FALSE. }
 \item{excel}{indicates if the table will be exported to excel. The default is not to export (excel=0). For exporting to excel set excel=1.}
 \item{excel_file}{a string variable defining the name of the excel file. If the directory path is not included in the file name, the file will be saved on the current path directory.}
 
