@@ -8,7 +8,7 @@ Print or export a formatted Table 1
 This function creates a table that complies with the table 1 required on most of the research papers. The function create descriptive statistics for the entire population and, if a categorical variable is defined for strata, then additional descriptive statistics will be added to the table and a p-value will be calculated. Additionally, if desired, the table may be exported to an excel file, were the table could be edited to addapt to the formatting required by the journal it will be published.
 }
 \usage{
-Table1(x=NULL, y=NULL, rn=NULL, data=NULL, miss=1, excel=0, excel_file=NULL)
+Table1(x=NULL, y=NULL, rn=NULL, data=NULL, miss=1, catmiss=FALSE, formatted=TRUE, categorize=FALSE, factorVars=FALSE, maxcat=10, delzero=TRUE, excel=0, excel_file=NULL)
 }
 \arguments{
 \item{x}{a string vector containing the name of the variables for which descriptive statistics will be calculated.}
