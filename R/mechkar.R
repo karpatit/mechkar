@@ -298,7 +298,7 @@ train_test <- function(data=NULL,train=NULL,test=NULL,prop=NULL,seed=123)
 ####
 ###################
 
-Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=FALSE, formatted=TRUE, categorize=FALSE, factorVars=NULL, maxcat=10, excel=0, excel_file=NULL) {
+Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=FALSE, formatted=TRUE, categorize=FALSE, factorVars=NULL, maxcat=10, delzero=TRUE, excel=0, excel_file=NULL) {
   ### define sub-functions
   options(warn=-1)
   g1 <- function(var)c(Mean=mean(var,na.rm=TRUE), SD=sd(var,na.rm=TRUE))
@@ -376,7 +376,7 @@ Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=FALSE, f
               t_m <- sum(datams$cnt)
               tp <- paste(format(t_m,big.mark=",")," (",format(round((t_m/t_n)*100,1),nsmall=1,big.mark=","),"%)",sep="")
               tbl1 <- cbind(rn[q],"Missing (%)",n=3, tp)
-              tbl2 <- cbind(rn[q],"Missing (%)",n=3, t_m, t_m/t_n, NA)
+              tbl2 <- cbind(rn[q],"Missing (%)",n=3, t_m, (t_m/t_n)*100, NA)
             } else {
               tbl1 <- cbind(rn[q],"Missing (%)",n=3, " -- ")
               tbl2 <- cbind(rn[q],"Missing (%)",n=3, NA, NA, NA)
@@ -389,8 +389,6 @@ Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=FALSE, f
           ttotal <- sum(t_n)
           nm <- row.names(t_n)
           for (f in 1:length(nm)) {
-            ## set n = 0 in case of dichotomic factor - this will be used for deleting unneded vars
-            #n <- ifelse(length(nm)==2 & f==1, 0, f)
             tp <- t_n[f] / ttotal * 100
             pct <- paste(format(round(t_n[f],1),nsmall=0,big.mark=",")," (", format(round(tp,1),nsmall=1,big.mark=","), "%)",sep="")
             tbl1 <- cbind(rn[q],nm[f],n=f, pct)
@@ -407,7 +405,7 @@ Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=FALSE, f
               t_m <- sum(datams$cnt)
               tp <- paste(format(t_m,big.mark=",")," (",format(round((t_m/t_n)*100,1),nsmall=1,big.mark=","),"%)",sep="")
               tbl1 <- cbind(rn[q],"Missing (%)",n=f, tp)
-              tbl2 <- cbind(rn[q],"Missing (%)",n=f, t_m, t_m/t_n, NA)
+              tbl2 <- cbind(rn[q],"Missing (%)",n=f, t_m, (t_m/t_n)*100, NA)
             } else {
               tbl1 <- cbind(rn[q],"Missing (%)",n=f, " -- ")
               tbl2 <- cbind(rn[q],"Missing (%)",n=f, NA, NA, NA)
@@ -421,9 +419,6 @@ Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=FALSE, f
       }
       q <- q + 1
     }
-    #row.names(tableaaaa) <- rn
-    #table1 <- data.frame(tableaaaa)
-    #table2 <- data.frame(tablebbbb)
     if(formatted==TRUE) {
       return(tableaaaa)
     } else {
@@ -443,7 +438,7 @@ Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=FALSE, f
             ct <- ifelse(is.numeric(data[[v]])==T & categorize==T & length(unique(data[[v]])) <= maxcat,1,0)
             if (is.numeric(data[[y]])==T & categorize==T & length(unique(data[[y]])) <= maxcat) {
               data[[y]] <- as.factor(data[[y]])
-            } else if (is.numeric(data[[y]])==T) {
+           } else if (is.numeric(data[[y]])==T) {
               print(paste("The variable",y,"is not a factor. Please convert to factor or change the 'categorize' flag to TRUE."))
               pval <- "Please rerun!!!"
             }
@@ -458,7 +453,6 @@ Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=FALSE, f
             } else if (length(unique(data[[v]]))==1) {
               pval <- NA 
             } else {
-              #### --->>> if (is.numeric(data[[v]])==T & ct==1) {data[[v]] <- as.factor(data[[v]])}
               if (min(table(data[[v]],data[[y]])) > 5) {
                 pval <- round(as.numeric(chisq.test(data[[v]],data[[y]])$p.val),3)
               } else {
@@ -476,9 +470,14 @@ Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=FALSE, f
   }
   ####################### Begin analysis
   ##### if y is null then make a simple table
-  require("sqldf")
   tabaaa1 <- getSimpleTable(x=x, rn=rn, data=data, miss=miss, catmiss=catmiss,formatted=formatted,categorize=categorize,maxcat=maxcat)
-  ##### if y has two levels, then make a compound comparison
+  tabaaa1 <- as.tibble(tabaaa1)
+  if(length(tabaaa1) > 4) {
+    names(tabaaa1) <- c("V1","V2","n","Pop","pop2","pop3")
+  } else {
+    names(tabaaa1) <- c("V1","V2","n","Pop")
+  }
+ ##### if y has two levels, then make a compound comparison
   if (is.null(y)==FALSE){
     if (y %in% names(data)) {
       if (is.factor(data[[y]])==F) {
@@ -492,27 +491,30 @@ Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=FALSE, f
         for (lv in levels(data[[y]])) {
           dtsub <- subset(data, data[[y]]==lv)
           tab <- getSimpleTable(x=x, rn=rn, data=dtsub, miss=miss, catmiss=catmiss, formatted=formatted,categorize=categorize,maxcat=maxcat)
-          if(ncol(tab)==4) {
-            tab[1,4] <- lv
-            tabaaa1 <- cbind(tabaaa1,tab[,4])
+          tab <- as.tibble(tab)
+          if(length(tab) > 4) {
+            names(tab) <- c("V1","V2","n",paste0(lv,"_1"),paste0(lv,"_2"),paste0(lv,"_3"))
           } else {
-            tab[1,4] <- lv
-            tabaaa1 <- cbind(tabaaa1,tab[,4:6])
+            names(tab) <- c("V1","V2","n",lv)
           }
+          tab[1,4] <- lv
+          tabaaa1 <- left_join(tabaaa1, tab)
         }
-        tabaaa1 <- data.frame(tabaaa1)
-        ptab <- data.frame(pvals(x=x,y=y,rn=rn,data=data,categorize=categorize,maxcat=maxcat))
+        # clean unnecesary rows
+        if (delzero == TRUE) {
+          tabaaa1 <- tabaaa1 %>%
+            filter(V2 != "No" & V2 != 0 & V2 != "None") #%>%
+        }
+ 
         ### calculate the p-value
-        tabaaa1 <- sqldf("SELECT a.*,
-                         CASE
-                         WHEN (b.pval IS NULL) THEN ('')
-                         WHEN (b.pval < 0.001) THEN ('<0.001')
-                         ELSE (b.pval) END AS pval
-                         FROM tabaaa1 a
-                         LEFT OUTER JOIN ptab b ON a.V1 = b.V AND a.n=b.n
-                         WHERE a.V2 NOT IN ('No','None') ") ### excluded AND ['a.n <> 0']
-        tabaaa1$n <- NULL
-        #return(tabaaa1)
+        ptab <- as.tibble(pvals(x=x,y=y,rn=rn,data=data,categorize=categorize,maxcat=maxcat))
+        names(ptab) <- c("V1","pval","n")
+        tabaaa1 <- left_join(tabaaa1, ptab)
+       
+        tabaaa1 <- tabaaa1 %>%
+          filter(Pop != " -- ") %>%
+          select(-n)
+       
       }
     }
   }
@@ -530,7 +532,7 @@ Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=FALSE, f
     return(tabaaa1)
   }
 }
- 
+
 ########################## END Table1 ###############
 
  
