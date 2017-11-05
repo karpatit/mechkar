@@ -15,10 +15,7 @@
 
 ###########  Functions   ##############################################
 exploreData <- function(y=NULL, data=data, factorSize=10, dir="report", ...) {
-  #require("outliers")
   ################## Prepare for the report ###################
-  #mydir <- getwd()
-  #mydir <- "~/"
   #report <- paste(mydir,"/report",sep="")
   report <- dir
   if (!file.exists(report)) {
@@ -28,6 +25,7 @@ exploreData <- function(y=NULL, data=data, factorSize=10, dir="report", ...) {
   if (!file.exists(fig)) {
     dir.create(fig)
   }
+ 
   # determine which columns are integer
   int_col <- which(sapply(data, is.integer))
   mi <- vector()
@@ -41,6 +39,7 @@ exploreData <- function(y=NULL, data=data, factorSize=10, dir="report", ...) {
       }
     }
   }
+ 
   str_col <- which(sapply(data, is.character))
   mi <- vector()
   # find only those integers with less than 10 unique values and convert to factor
@@ -49,65 +48,184 @@ exploreData <- function(y=NULL, data=data, factorSize=10, dir="report", ...) {
     mi <- c(mi,li)
     data[,li] <- factor(data[,li])
   }
+ 
   # create the html report page
   myhtml <- paste(report,"/report.html",sep="")
-  cat("<head>
+  cat("<!DOCTYPE html>
+      <html>
+      <head>
       <title>Data Visualization</title>
       <meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />
-      <link rel='stylesheet' href='//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css'>
-      <script src='//ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js'></script>
-      <script src='//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js'></script>
+      <link rel='stylesheet' href='file://clalit/dfs$/Docs/Institute/software/R/jquery.mobile-1.4.5.min.css'>
+     
+      <script src='file://clalit/dfs$/Docs/Institute/software/R/jquery-1.10.2.js'></script>
       <script>
-      $(function() {
+      $(document).ready(function(){
+        $('.onetoone').hide();
+      });
+ 
+    $(function() {
       $('.origimg').click(function(e) {
-      $('#popup_img').attr('src',$(this).attr('src'));
-      $('#myContainer').hide();
-      var pos = $(document).scrollTop();
-      $('#myContainer').css({'top':pos+20,'left':250, 'position':'absolute', 'border':'1px solid black', 'padding':'0px'});
-      $('#myContainer').show();
+          $('#popup_img').attr('src',$(this).attr('src'));
+          $('#myContainer').hide();
+          var pos = $(document).scrollTop();
+          $('#myContainer').css({'top':pos+20,'left':250, 'position':'absolute', 'border':'1px solid black', 'padding':'0px'});
+          $('#myContainer').show();
       });
       $('#myContainer').click(function(e) {
-      $('#myContainer').hide();
+        $('#myContainer').hide();
       });
+ 
+      $('#myform2').submit(function(e) {
+        e.preventDefault();
       });
+ 
+      $('#onetoone').on('click',function() {
+        console.log('onetone button - 1');
+        $('#onetoone').hide();
+        $('#aslist').show();
+        // To show only individual rows:
+        $('.Row').hide();
+        $('.onetoone').show();
+        // then we iterate
+        var i = $('.Row').length;
+        // Then we iterate
+        var nxt = $('#idx').val();
+        if (nxt < i & nxt >0) {
+          $('.Row').hide();
+          $('.Row').eq(0).show();
+          $('.Row').eq(nxt).show();
+        } else {
+          $('#idx').val(1)
+        }
+        console.log('onetone button - 2');
+      });
+ 
+      $('#aslist').on('click',function() {
+        console.log('aslist button - 1');
+        $('#onetoone').show();
+        $('#aslist').hide();
+        $('.onetoone').hide();
+        $('.Row').show();
+        console.log('aslist button - 2');
+      });
+ 
+      $('#less').on('click',function(){
+        console.log('less button - 1');
+        var i = $('.Row').length;
+        var nxt = parseInt($('#idx').val(),10) - 1;
+        if (nxt < i & nxt >0) {
+          $('#idx').val(nxt)
+          $('.Row').hide();
+          $('.Row').eq(0).show();
+          $('.Row').eq(nxt).show();
+        } else {
+          $('#idx').val(1)
+        }
+        console.log('less button - 2');
+      });
+ 
+      $('#more').on('click',function(){
+        console.log('more button - 1');
+        var i = $('.Row').length;
+       var nxt = parseInt($('#idx').val(),10) + 1;
+        if (nxt < i & nxt >0) {
+          $('#idx').val(nxt)
+          $('.Row').hide();
+          $('.Row').eq(0).show();
+          $('.Row').eq(nxt).show();
+        } else {
+          $('#idx').val(i)
+        }
+        console.log('more button - 2');
+      });
+ 
+      $('#idx').on('change', function(){
+        console.log('idx changed - 1');
+        var i = $('.Row').length;
+        var nxt = $('#idx').val();
+        if (nxt < i & nxt >0) {
+          $('#idx').val(nxt)
+          $('.Row').hide();
+          $('.Row').eq(0).show();
+          $('.Row').eq(nxt).show();
+        } else {
+          $('#idx').val(i)
+        }
+        console.log('idx changed - 2');
+      });
+    });
+ 
       </script>
-      <style>
-      td {padding':'2px';}
-      </style>
-      <style>
-      td {
-      padding: 10px;
-      font-family: Georgia, serif;
+ 
+      <style type='text/css'>
+      .Table
+      {
+      display: table;
+      }
+      .Title
+      {
+      display: table-caption;
+      text-align: center;
+      font-weight: bold;
+      font-size: larger;
+      }
+      .Row
+      {
+      display: table-row;
+      }
+      .Cell
+      {
+      display: table-cell;
+      border: solid;
+      border-width: thin;
+      padding-left: 5px;
+      padding-right: 5px;
       }
       </style>
+     
       </head>
+     
       <body>
-
       <div id='pageone' data-role='main' class='ui-content'>
       ", file = myhtml, sep='\n',append=FALSE)
-
-  html <- paste("<p><p><h1> Data Visualization & Exploration </h1>")
+ 
+  html <- paste("<p><p><h1> Data Visualization & Exploration </h1>
+                <form>
+                <input type='button' id='onetoone' value='Show as Cards'>
+                <input type='button' id='aslist' class='onetoone' value='Show as List'>
+                </form>
+                <p>
+                ")
   cat(html, file = myhtml, sep='\n', append=TRUE)
   # begin table
-  alt1 <- ifelse(is.null(y)== TRUE, "", "<th> Dependent <br> Variable <br> Distribution </th>")
-  html <- paste("<p><p><table border='1'><tbody>
-                <tr><th> Variable </th><th> Distribution </th>
-                <th>Descriptive <br> Statistics</th><th> Outliers </th>", alt1, "</tr>")
+  alt1 <- ifelse(is.null(y)== TRUE, "", "<div class='Cell'> Dependent <br> Variable <br> Distribution </div>")
+  html <- paste("<p><p>
+             <div class='Table'>
+                 <div class='Row'>
+                    <div class='Cell Title'> Variable </div>
+                    <div class='Cell Title'> Distribution </div>
+                    <div class='Cell Title'> Descriptive <br> Statistics</div>
+                    <div class='Cell Title'> Outliers </div>"
+                    , alt1,
+                "</div>")
   cat(html, file = myhtml, sep='\n', append=TRUE)
+ 
   # Check for the statistics of each variable
   nm <- names(data)
   for (x in nm) {
     # begin a table row
-    html <- paste("<tr><td><b>", x ,"</b></td>")
+    html <- paste("<div class='Row'>
+                  <div class='Cell Title'><b>", x ,"</b></div>")
     cat(html, file = myhtml, sep='\n', append=TRUE)
     # determine the type of data
-    dt <- ifelse(is.factor(data[[x]])==TRUE | is.character(data[[x]])==TRUE | inherits(data[[x]], "Date")==FALSE, 1, 2)
+    dt <- ifelse(is.factor(data[[x]])==TRUE | is.character(data[[x]])==TRUE | inherits(data[[x]], "Date")==TRUE, 1, 2)
     # first create a histogram / bars
     if (dt == 2 & inherits(data[[x]],"Date")==FALSE & is.na(data[[x]])==FALSE & is.null(data[[x]])==FALSE) {
       imgname = paste(fig,"/",x, "_1.png",sep="")
       imgsrc = paste("fig/",x, "_1.png",sep="")
       if (is.numeric(data[[x]])==TRUE) {
-      ###
+        ###
         png(imgname)
         d=density(data[[x]], kernel = "gaussian",na.rm=TRUE)
         breakstar=(max(data[[x]],na.rm=TRUE) -min(data[[x]],na.rm=TRUE))/d$bw
@@ -119,12 +237,12 @@ exploreData <- function(y=NULL, data=data, factorSize=10, dir="report", ...) {
         lines(yfit, ffit, col="blue", lwd=2)
         dev.off()
       } else if (dt==1 & is.na(data[[x]])==FALSE & is.null(data[[x]])==FALSE) {
-      ###
+        ###
         png(imgname)
         hist(data[[x]],breaks=10)
         dev.off()
       }
-      html <- paste("<td><img class='origimg'  src='",imgsrc,"' height='150' width='150'></img><br></td>")
+      html <- paste("<div class='Cell'><img class='origimg'  src='",imgsrc,"' height='150' width='150'><br></div>")
       cat(html, file = myhtml, sep='\n', append=TRUE)
     } else if (dt == 1 & is.na(data[[x]])==FALSE & is.null(data[[x]])==FALSE) {
       imgname = paste(fig,"/",x, "_1.png",sep="")
@@ -132,10 +250,10 @@ exploreData <- function(y=NULL, data=data, factorSize=10, dir="report", ...) {
       png(imgname)
       plot(data[[x]]) 
       dev.off()
-      html <- paste("<td><img class='origimg' src='",imgsrc,"' height='150' width='150'></img><br></td>")
+      html <- paste("<div class='Cell'><img class='origimg' src='",imgsrc,"' height='150' width='150'><br></div>")
       cat(html, file = myhtml, sep='\n', append=TRUE)
     } else {
-      html <- paste("<td><center>NO GRAPHIC AVAILABLE</center></td>")
+      html <- paste("<div class='Cell'><center>NO GRAPHIC AVAILABLE</center></div>")
       cat(html, file = myhtml, sep='\n', append=TRUE)
     }
     # second, show the statistics
@@ -151,11 +269,11 @@ exploreData <- function(y=NULL, data=data, factorSize=10, dir="report", ...) {
       me <- formatC(median(data[[x]], na.rm=TRUE))
       q1 <- formatC(quantile(data[[x]],1/4, na.rm=TRUE))
       q3 <- formatC(quantile(data[[x]],3/4, na.rm=TRUE))
-      mn <- formatC(min(data[[x]], na.rm=TRUE))
+     mn <- formatC(min(data[[x]], na.rm=TRUE))
       mx <- formatC(max(data[[x]], na.rm=TRUE))
-      html <- paste("<td> <u>Data type</u>: Continuous <p> <u>Data length</u>: ",n ,"/", N, " (", pct, "%) <br> <u>Missing</u>: ",
+      html <- paste("<div class='Cell'> <u>Data type</u>: Continuous <p> <u>Data length</u>: ",n ,"/", N, " (", pct, "%) <br> <u>Missing</u>: ",
                     nmiss, " (", npct, "%)<p> <u>Mean</u>: ", formatC(ma), "\t <u>StdDev</u>: ", formatC(s), "<br><u>Median</u>: ",me,
-                    "\t <u>IQR</u>: ", q1, "-", q3, "<br><u>Min</u>: ", mn, "\t <u>Max</u>: ", mx, "</td>")
+                    "\t <u>IQR</u>: ", q1, "-", q3, "<br><u>Min</u>: ", mn, "\t <u>Max</u>: ", mx, "</div>")
       cat(html, file = myhtml, sep='\n', append=TRUE)
       #stats <- list(c("Mean: ", ma, "StdDev: ", s), c("Median: ", me, "IQR: ", q1, q3), c("Min",mn,"Max",mx))
     } else if(dt == 1 & inherits(data[[x]],"Date")==FALSE) {
@@ -168,17 +286,19 @@ exploreData <- function(y=NULL, data=data, factorSize=10, dir="report", ...) {
         }
         htm <- paste(htm,"</ul>")
       }
-      html <- paste("<td> <u>Data type</u>: Categorical Data <p> <u>Data length</u>: ",n, "/", N, " (", pct, "%) <br> <u>Missing</u>: ",
-                    nmiss, " (", npct, "%) <p> <u>Number of levels</u>: ", length(l), "<br>", htm, "</td>")
+      html <- paste("<div class='Cell'> <u>Data type</u>: Categorical Data <p> <u>Data length</u>: ",n, "/", N, " (", pct, "%) <br> <u>Missing</u>: ",
+                    nmiss, " (", npct, "%) <p> <u>Number of levels</u>: ", length(l), "<br>", htm, "</div>")
       cat(html, file = myhtml, sep='\n', append=TRUE)
       #stats <- c("Categorical data: ", l[1], s[l[1]], l[2], s[l[2]])
     } else {
       #l <- levels(data[[x]])
       s <- summary(data[[x]])
-      html <- paste("<td> <u>Data type</u>: Date <p> <u>Data length</u>: ",n, "/", N, " (", pct, "%) <br> <u>Missing</u>: ",
-                    nmiss, " (", npct, "%) <p> <u>Min date</u>: ", min(data[[x]], na.rm=T), "<br><u>Max date</u>:",min(data[[x]], na.rm=T) , "</td>")
+      html <- paste("<div class='Cell'> <u>Data type</u>: Date <p> <u>Data length</u>: ",n, "/", N, " (", pct, "%) <br> <u>Missing</u>: ",
+                    nmiss, " (", npct, "%) <p> <u>Min date</u>: ", min(data[[x]], na.rm=T), "<br><u>Max date</u>:",min(data[[x]], na.rm=T) , "</div>")
       cat(html, file = myhtml, sep='\n', append=TRUE)
+     
     }
+   
     # third, determine the outliers
     if (dt==2 & inherits(data[[x]],"Date")==FALSE) {
       #xtrm <- outlier(data[[x]])
@@ -189,7 +309,7 @@ exploreData <- function(y=NULL, data=data, factorSize=10, dir="report", ...) {
         xtrm <- "No outlier values found"
       } else {
         xtrm <- paste(formatC(order(unique(bp$out))), collapse=', ' )
-      }
+     }
       imgname = paste(fig,"/",x, "_2.png",sep="")
       imgsrc = paste("fig/",x, "_2.png",sep="")
       png(imgname)
@@ -208,21 +328,22 @@ exploreData <- function(y=NULL, data=data, factorSize=10, dir="report", ...) {
         abline(h=ma+(3*s), col="red", lty=2)
       }
       dev.off()
-      html <- paste("<td><img class='origimg' src='",imgsrc,"' height='150' width='250'></img><br> <u>Outlier values</u>: <br> ", xtrm, "</td>")
+      html <- paste("<div class='Cell'><img class='origimg' src='",imgsrc,"' height='150' width='250'><br> <u>Outlier values</u>: <br> ", xtrm, "</div>")
       cat(html, file = myhtml, sep='\n', append=TRUE)
     } else {
-      html <- paste("<td></td>")
+      html <- paste("<div class='Cell'></div>")
       cat(html, file = myhtml, sep='\n', append=TRUE)
     }
+   
     # fourth, if y is assigned, make a corresponding plot
     if (is.null(y)==FALSE) {
-     if (dt==2 & is.numeric(data[[y]])==TRUE) {
+      if (dt==2 & is.numeric(data[[y]])==TRUE) {
         imgname = paste(fig,"/",x, "_3.png",sep="")
         imgsrc = paste("fig/",x, "_3.png",sep="")
         png(imgname)
         scatter.smooth(data[[x]] ~ data[[y]])
         dev.off()
-        html <- paste("<td><img class='origimg' src='",imgsrc,"' height='150' width='150'></img><br></td>")
+        html <- paste("<div class='Cell'><img class='origimg' src='",imgsrc,"' height='150' width='150'><br></div>")
         cat(html, file = myhtml, sep='\n', append=TRUE)
       } else if (dt==1 & is.na(data[[x]])==FALSE & is.null(data[[x]])==FALSE) {
         imgname = paste(fig,"/",x, "_3.png",sep="")
@@ -231,26 +352,39 @@ exploreData <- function(y=NULL, data=data, factorSize=10, dir="report", ...) {
         plot(data[[x]] ~ data[[y]])
         #boxplot(data[[x]] ~ data[[y]])
         dev.off()
-        html <- paste("<td><img class='origimg' src='",imgsrc,"' height='150' width='150'></img><br></td>")
+        html <- paste("<div class='Cell'><img class='origimg' src='",imgsrc,"' height='150' width='150'><br></div>")
         cat(html, file = myhtml, sep='\n', append=TRUE)
       } else {
         html <- paste("<td>NO GRAPHIC AVAILABLE</td>")
         cat(html, file = myhtml, sep='\n', append=TRUE)
       }
     }
+    html <- paste("</div>")
+    cat(html, file = myhtml, sep='\n', append=TRUE)
     # now print all
     #res <- list(c("Complete values: ", n, pct), c("Missing values: ", nmiss, npct), c("Outliers: ", xtrm), stats)
     #print(res)
   }
   #### finish the report
+  html <- paste("</div></div>")
   # end table
   html <- paste("
                 <div data-role='popup' id='myContainer' style='display: none;'>
-                <img id='popup_img' src='' />
+                   <img id='popup_img' src='' />
                 </div>
-                </div>
-                </div>
-                </body></html>
+          </div>
+        </div>
+     </div>
+     <p>
+     <div class='onetoone'>
+        <form id='myform2'>
+          <span> <input type='button' id='less' value=' << '> </span>
+          <span> <input id='idx' name='idx' value='1'></input></span>
+          <span> <input type='button' id='more' value=' >> '> </span>
+        </form>
+     </div>
+     <p>
+  </body></html>
                 ")
   cat(html, file = myhtml, sep='\n', append=TRUE)
   if(.Platform$OS.type == "unix") {
@@ -259,6 +393,8 @@ exploreData <- function(y=NULL, data=data, factorSize=10, dir="report", ...) {
     shell(paste("explorer ", gsub("/", "\\\\", myhtml) ), intern=TRUE)
   }
 }
+ 
+ 
 ###################### END exploreData ###############
 
 ############################################################################
