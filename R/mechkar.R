@@ -1642,6 +1642,7 @@ train_test_mice <- function(data=NULL, train="train", test="test", prop=0.6, see
  
  
 subset.mice <- function(data, ...) {
+  library(mice)
   cond <- deparse(substitute(...))
   completeData <- complete(data, action='long', include=TRUE)
   completeData <- subset(completeData, eval(parse(text=cond)))
