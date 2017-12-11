@@ -1648,8 +1648,3 @@ subset.mice <- function(data, ...) {
   completeData <- subset(completeData, eval(parse(text=cond)))
   return(as.mids(completeData))
 }
- 
-traj.mi <- subset.mice(cases.im, cl_traj==3)
- 
-
-
