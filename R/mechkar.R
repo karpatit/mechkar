@@ -1612,3 +1612,43 @@ getMissingness <- function(data, getRows=FALSE) {
   print(list(head(cnt,n=10), msg))
   return(list(cnt, msg, idx$rn))
 }
+
+###################################################################################################
+#########   Mice imputed dataset's functions
+###################################################################################################
+
+train_test_mice <- function(data=NULL, train="train", test="test", prop=0.6, seed=123) {
+  require(mice)
+  require(dplyr)
+ 
+  set.seed(seed)
+  completeData <- complete(data, action='long', include=TRUE)
+  predata <- subset(completeData, .imp==0)
+ 
+  smp_size <- floor(prop * nrow(predata))
+  train_ind <- sample(seq_len(nrow(predata)), size = smp_size)
+  predata <- predata[,c(".imp", ".id")]
+ 
+  train.im <- inner_join(completeData, predata[train_ind,])
+  test.im <- inner_join(completeData, predata[-train_ind,])
+ 
+  train.im <- as.mids(train.im)
+  test.im <- as.mids(test.im)
+ 
+  assign(train, train.im, envir=globalenv())
+  assign(test, test.im, envir=globalenv())
+  return("created a train and test datasets for your imputed data")
+}
+ 
+ 
+subset.mice <- function(data, ...) {
+  cond <- deparse(substitute(...))
+  completeData <- complete(data, action='long', include=TRUE)
+  completeData <- subset(completeData, eval(parse(text=cond)))
+  return(as.mids(completeData))
+}
+ 
+traj.mi <- subset.mice(cases.im, cl_traj==3)
+ 
+
+
