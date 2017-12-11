@@ -1,11 +1,11 @@
 Package: mechkar
 Type: Package
 Title: Set of utilities to help managing different stages of the research process
-Version: 1.12
+Version: 1.13
 Date: 2017-09-13
 Author: Tomas Karpati MD
 Maintainer: Tomas Karpati MD <karpati@it4biotech.com>
-Depends: car, Hmisc, sqldf, ROSE, pROC, ResourceSelection, sjstats, sjmisc, InformationValue,gmodels, dplyr, tibble, dtplyr, dbplyr, odbc, DBI, givitiR,
+Depends: car, Hmisc, sqldf, ROSE, pROC, ResourceSelection, sjstats, sjmisc, InformationValue,gmodels, dplyr, tibble, dtplyr, dbplyr, odbc, DBI, givitiR, mice
 Suggests: xlsx
 Description: This package contains utilities that help researchers in their research work.
 License: GPL-2
