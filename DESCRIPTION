@@ -1,7 +1,7 @@
 Package: mechkar
 Type: Package
 Title: Set of utilities to help managing different stages of the research process
-Version: 1.13
+Version: 1.13.1
 Date: 2017-09-13
 Author: Tomas Karpati MD
 Maintainer: Tomas Karpati MD <karpati@it4biotech.com>
