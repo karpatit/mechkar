@@ -22,6 +22,7 @@ Table1(x=NULL, y=NULL, rn=NULL, data=NULL, miss=1, catmiss=FALSE, formatted=TRUE
 \item{factorVars=FALSE}{If categorize is set to TRUE, a list of variables to be considered as categoricals may be given. In this case, maxcat will not be used and only the variables in the list will be converted to factors.}
 \item{maxcat=10}{If we force categorize to be TRUE, maxcat will be used to define the maximum number of unique values permited for a variable to be considered as categorical. Default is 10.}
 \item{delzero=TRUE}{For dichotomic variables, the default behaviour is to delete the rows with the first value (0,"No","Normal",etc.). If you want that all the values are presented change it to FALSE. }
+\item{messages=TRUE}{This switch will show the iterations of the function through the variables. In case you want to suppress those message set it to FALSE.} 
 \item{excel}{indicates if the table will be exported to excel. The default is not to export (excel=0). For exporting to excel set excel=1.}
 \item{excel_file}{a string variable defining the name of the excel file. If the directory path is not included in the file name, the file will be saved on the current path directory.}
 
