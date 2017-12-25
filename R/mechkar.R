@@ -1200,7 +1200,7 @@ Table2 <- function (mod, rv=NULL)
   } else {pv <- "Pr(>|t|)"}
   exp_coef <- round(exp(coef(mod)),2)
   pv
-  dd <- exp(confint(mod, level=0.95))
+  dd <- suppressMessages(exp(confint(mod, level=0.95)))
   dd1 <- round(dd[,1],2)
   dd2 <- round(dd[,2],2)
   p_value <- round(summary(mod)$coef[,pv],2)
