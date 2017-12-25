@@ -28,6 +28,7 @@ exploreData <- function(y=NULL, data=data, factorSize=10, dir="report", ...) {
  
   # determine which columns are integer
   int_col <- which(sapply(data, is.integer))
+  int_col <- c(int_col,(which(sapply(data, is.numeric))))
   mi <- vector()
   # find only those integers with less than 10 unique values and convert to factor
   #tmp <- data.frame(lapply(ckd[int_col], factor))  ###ckd2
@@ -61,103 +62,103 @@ exploreData <- function(y=NULL, data=data, factorSize=10, dir="report", ...) {
       <script src='file://clalit/dfs$/Docs/Institute/software/R/jquery-1.10.2.js'></script>
       <script>
       $(document).ready(function(){
-        $('.onetoone').hide();
+      $('.onetoone').hide();
       });
- 
-    $(function() {
+     
+      $(function() {
       $('.origimg').click(function(e) {
-          $('#popup_img').attr('src',$(this).attr('src'));
-          $('#myContainer').hide();
-          var pos = $(document).scrollTop();
-          $('#myContainer').css({'top':pos+20,'left':250, 'position':'absolute', 'border':'1px solid black', 'padding':'0px'});
-          $('#myContainer').show();
+      $('#popup_img').attr('src',$(this).attr('src'));
+      $('#myContainer').hide();
+      var pos = $(document).scrollTop();
+      $('#myContainer').css({'top':pos+20,'left':250, 'position':'absolute', 'border':'1px solid black', 'padding':'0px'});
+      $('#myContainer').show();
       });
       $('#myContainer').click(function(e) {
-        $('#myContainer').hide();
+      $('#myContainer').hide();
       });
- 
+     
       $('#myform2').submit(function(e) {
-        e.preventDefault();
+      e.preventDefault();
       });
- 
+     
       $('#onetoone').on('click',function() {
-        console.log('onetone button - 1');
-        $('#onetoone').hide();
-        $('#aslist').show();
-        // To show only individual rows:
-        $('.Row').hide();
-        $('.onetoone').show();
-        // then we iterate
-        var i = $('.Row').length;
-        // Then we iterate
-        var nxt = $('#idx').val();
-        if (nxt < i & nxt >0) {
-          $('.Row').hide();
-          $('.Row').eq(0).show();
-          $('.Row').eq(nxt).show();
-        } else {
-          $('#idx').val(1)
-        }
-        console.log('onetone button - 2');
+      console.log('onetone button - 1');
+      $('#onetoone').hide();
+      $('#aslist').show();
+      // To show only individual rows:
+      $('.Row').hide();
+      $('.onetoone').show();
+      // then we iterate
+      var i = $('.Row').length;
+      // Then we iterate
+      var nxt = $('#idx').val();
+      if (nxt < i & nxt >0) {
+      $('.Row').hide();
+      $('.Row').eq(0).show();
+      $('.Row').eq(nxt).show();
+      } else {
+      $('#idx').val(1)
+      }
+      console.log('onetone button - 2');
       });
- 
+     
       $('#aslist').on('click',function() {
-        console.log('aslist button - 1');
-        $('#onetoone').show();
-        $('#aslist').hide();
-        $('.onetoone').hide();
-        $('.Row').show();
-        console.log('aslist button - 2');
+      console.log('aslist button - 1');
+      $('#onetoone').show();
+      $('#aslist').hide();
+      $('.onetoone').hide();
+      $('.Row').show();
+      console.log('aslist button - 2');
       });
- 
+     
       $('#less').on('click',function(){
-        console.log('less button - 1');
-        var i = $('.Row').length;
-        var nxt = parseInt($('#idx').val(),10) - 1;
-        if (nxt < i & nxt >0) {
-          $('#idx').val(nxt)
-          $('.Row').hide();
-          $('.Row').eq(0).show();
-          $('.Row').eq(nxt).show();
-        } else {
-          $('#idx').val(1)
-        }
-        console.log('less button - 2');
+      console.log('less button - 1');
+      var i = $('.Row').length;
+      var nxt = parseInt($('#idx').val(),10) - 1;
+      if (nxt < i & nxt >0) {
+      $('#idx').val(nxt)
+      $('.Row').hide();
+      $('.Row').eq(0).show();
+      $('.Row').eq(nxt).show();
+      } else {
+      $('#idx').val(1)
+      }
+      console.log('less button - 2');
       });
- 
+     
       $('#more').on('click',function(){
-        console.log('more button - 1');
-        var i = $('.Row').length;
-       var nxt = parseInt($('#idx').val(),10) + 1;
-        if (nxt < i & nxt >0) {
-          $('#idx').val(nxt)
-          $('.Row').hide();
-          $('.Row').eq(0).show();
-          $('.Row').eq(nxt).show();
-        } else {
-          $('#idx').val(i)
-        }
-        console.log('more button - 2');
+      console.log('more button - 1');
+      var i = $('.Row').length;
+      var nxt = parseInt($('#idx').val(),10) + 1;
+      if (nxt < i & nxt >0) {
+      $('#idx').val(nxt)
+      $('.Row').hide();
+      $('.Row').eq(0).show();
+      $('.Row').eq(nxt).show();
+      } else {
+      $('#idx').val(i)
+      }
+      console.log('more button - 2');
       });
- 
+     
       $('#idx').on('change', function(){
-        console.log('idx changed - 1');
-        var i = $('.Row').length;
-        var nxt = $('#idx').val();
-        if (nxt < i & nxt >0) {
-          $('#idx').val(nxt)
-          $('.Row').hide();
-          $('.Row').eq(0).show();
-          $('.Row').eq(nxt).show();
-        } else {
-          $('#idx').val(i)
-        }
-        console.log('idx changed - 2');
+      console.log('idx changed - 1');
+      var i = $('.Row').length;
+      var nxt = $('#idx').val();
+      if (nxt < i & nxt >0) {
+      $('#idx').val(nxt)
+      $('.Row').hide();
+      $('.Row').eq(0).show();
+      $('.Row').eq(nxt).show();
+      } else {
+      $('#idx').val(i)
+      }
+      console.log('idx changed - 2');
       });
-    });
- 
+      });
+     
       </script>
- 
+     
       <style type='text/css'>
       .Table
       {
@@ -199,15 +200,15 @@ exploreData <- function(y=NULL, data=data, factorSize=10, dir="report", ...) {
                 ")
   cat(html, file = myhtml, sep='\n', append=TRUE)
   # begin table
-  alt1 <- ifelse(is.null(y)== TRUE, "", "<div class='Cell'> Dependent <br> Variable <br> Distribution </div>")
+  alt1 <- ifelse(is.null(y)== TRUE, "", "<div class='Cell Title'> Dependent <br> Variable <br> Distribution </div>")
   html <- paste("<p><p>
-             <div class='Table'>
-                 <div class='Row'>
-                    <div class='Cell Title'> Variable </div>
-                    <div class='Cell Title'> Distribution </div>
-                    <div class='Cell Title'> Descriptive <br> Statistics</div>
-                    <div class='Cell Title'> Outliers </div>"
-                    , alt1,
+                <div class='Table'>
+                <div class='Row'>
+                <div class='Cell Title'> Variable </div>
+                <div class='Cell Title'> Distribution </div>
+                <div class='Cell Title'> Descriptive <br> Statistics</div>
+                <div class='Cell Title'> Outliers </div>"
+                , alt1,
                 "</div>")
   cat(html, file = myhtml, sep='\n', append=TRUE)
  
@@ -221,7 +222,8 @@ exploreData <- function(y=NULL, data=data, factorSize=10, dir="report", ...) {
     # determine the type of data
     dt <- ifelse(is.factor(data[[x]])==TRUE | is.character(data[[x]])==TRUE | inherits(data[[x]], "Date")==TRUE, 1, 2)
     # first create a histogram / bars
-    if (dt == 2 & inherits(data[[x]],"Date")==FALSE & is.na(data[[x]])==FALSE & is.null(data[[x]])==FALSE) {
+    #if (dt == 2 & inherits(data[[x]],"Date")==FALSE & is.na(data[[x]])==FALSE & is.null(data[[x]])==FALSE) {
+    if (dt == 2) {
       imgname = paste(fig,"/",x, "_1.png",sep="")
       imgsrc = paste("fig/",x, "_1.png",sep="")
       if (is.numeric(data[[x]])==TRUE) {
@@ -236,19 +238,19 @@ exploreData <- function(y=NULL, data=data, factorSize=10, dir="report", ...) {
         ffit <- ffit*diff(h$mids[1:2])*length(data[[x]])
         lines(yfit, ffit, col="blue", lwd=2)
         dev.off()
-      } else if (dt==1 & is.na(data[[x]])==FALSE & is.null(data[[x]])==FALSE) {
+      } else if (dt==1) {
         ###
         png(imgname)
-        hist(data[[x]],breaks=10)
+        hist(data[[x]],breaks=10,xlab=x)
         dev.off()
       }
       html <- paste("<div class='Cell'><img class='origimg'  src='",imgsrc,"' height='150' width='150'><br></div>")
       cat(html, file = myhtml, sep='\n', append=TRUE)
-    } else if (dt == 1 & is.na(data[[x]])==FALSE & is.null(data[[x]])==FALSE) {
+    } else if (dt == 1) {
       imgname = paste(fig,"/",x, "_1.png",sep="")
       imgsrc = paste("fig/",x, "_1.png",sep="")
       png(imgname)
-      plot(data[[x]]) 
+      plot(data[[x]],ylab=x) 
       dev.off()
       html <- paste("<div class='Cell'><img class='origimg' src='",imgsrc,"' height='150' width='150'><br></div>")
       cat(html, file = myhtml, sep='\n', append=TRUE)
@@ -269,7 +271,7 @@ exploreData <- function(y=NULL, data=data, factorSize=10, dir="report", ...) {
       me <- formatC(median(data[[x]], na.rm=TRUE))
       q1 <- formatC(quantile(data[[x]],1/4, na.rm=TRUE))
       q3 <- formatC(quantile(data[[x]],3/4, na.rm=TRUE))
-     mn <- formatC(min(data[[x]], na.rm=TRUE))
+      mn <- formatC(min(data[[x]], na.rm=TRUE))
       mx <- formatC(max(data[[x]], na.rm=TRUE))
       html <- paste("<div class='Cell'> <u>Data type</u>: Continuous <p> <u>Data length</u>: ",n ,"/", N, " (", pct, "%) <br> <u>Missing</u>: ",
                     nmiss, " (", npct, "%)<p> <u>Mean</u>: ", formatC(ma), "\t <u>StdDev</u>: ", formatC(s), "<br><u>Median</u>: ",me,
@@ -302,6 +304,7 @@ exploreData <- function(y=NULL, data=data, factorSize=10, dir="report", ...) {
     # third, determine the outliers
     if (dt==2 & inherits(data[[x]],"Date")==FALSE) {
       #xtrm <- outlier(data[[x]])
+      html <- paste("<div class='Cell'></div>")
       bp <- boxplot(data[[x]],plot=FALSE)
       if (length(unique(bp$out)) > 10) {
         xtrm <- paste("There are ", length(unique(bp$out)), " outlier values")
@@ -309,53 +312,52 @@ exploreData <- function(y=NULL, data=data, factorSize=10, dir="report", ...) {
         xtrm <- "No outlier values found"
       } else {
         xtrm <- paste(formatC(order(unique(bp$out))), collapse=', ' )
-     }
+      }
       imgname = paste(fig,"/",x, "_2.png",sep="")
       imgsrc = paste("fig/",x, "_2.png",sep="")
       png(imgname)
-      mod <- try(
+      mod <- tryCatch({
         if (is.null(y)==FALSE) {
           cl <- as.numeric(data[[y]])
-          scatter.smooth(data[[x]],col=cl)
+          scatter.smooth(data[[x]],col=cl,ylab=x)
         } else {
-          scatter.smooth(data[[x]])
+          scatter.smooth(data[[x]],ylab=x)
         }
-      )
-      if(inherits(mod, "try-error")) {
-        next
-      } else {
+        #plot(sp)
         abline(h=ma-(3*s), col="red", lty=2)
         abline(h=ma+(3*s), col="red", lty=2)
-      }
-      dev.off()
+        #html <- paste("<div class='Cell'><img class='origimg' src='",imgsrc,"' height='150' width='250'><br> <u>Outlier values</u>: <br> ", xtrm, "</div>")
+      }, error = function(e) {
+        html <- paste("<div class='Cell'></div>")
+      })
       html <- paste("<div class='Cell'><img class='origimg' src='",imgsrc,"' height='150' width='250'><br> <u>Outlier values</u>: <br> ", xtrm, "</div>")
+      dev.off()
       cat(html, file = myhtml, sep='\n', append=TRUE)
     } else {
       html <- paste("<div class='Cell'></div>")
       cat(html, file = myhtml, sep='\n', append=TRUE)
     }
-   
     # fourth, if y is assigned, make a corresponding plot
     if (is.null(y)==FALSE) {
       if (dt==2 & is.numeric(data[[y]])==TRUE) {
         imgname = paste(fig,"/",x, "_3.png",sep="")
         imgsrc = paste("fig/",x, "_3.png",sep="")
         png(imgname)
-        scatter.smooth(data[[x]] ~ data[[y]])
+        scatter.smooth(data[[x]] ~ data[[y]],xlab=x,ylab=y)
         dev.off()
         html <- paste("<div class='Cell'><img class='origimg' src='",imgsrc,"' height='150' width='150'><br></div>")
         cat(html, file = myhtml, sep='\n', append=TRUE)
-      } else if (dt==1 & is.na(data[[x]])==FALSE & is.null(data[[x]])==FALSE) {
+      } else if (inherits(data[[x]],"Date")==TRUE) {
+        html <- paste("<div class='Cell'><td>NO GRAPHIC AVAILABLE</td></div>")
+        cat(html, file = myhtml, sep='\n', append=TRUE)
+      } else {
         imgname = paste(fig,"/",x, "_3.png",sep="")
         imgsrc = paste("fig/",x, "_3.png",sep="")
         png(imgname)
-        plot(data[[x]] ~ data[[y]])
+        plot(data[[x]] ~ data[[y]],,xlab=x,ylab=y)
         #boxplot(data[[x]] ~ data[[y]])
         dev.off()
         html <- paste("<div class='Cell'><img class='origimg' src='",imgsrc,"' height='150' width='150'><br></div>")
-        cat(html, file = myhtml, sep='\n', append=TRUE)
-      } else {
-        html <- paste("<td>NO GRAPHIC AVAILABLE</td>")
         cat(html, file = myhtml, sep='\n', append=TRUE)
       }
     }
@@ -370,21 +372,21 @@ exploreData <- function(y=NULL, data=data, factorSize=10, dir="report", ...) {
   # end table
   html <- paste("
                 <div data-role='popup' id='myContainer' style='display: none;'>
-                   <img id='popup_img' src='' />
+                <img id='popup_img' src='' />
                 </div>
-          </div>
-        </div>
-     </div>
-     <p>
-     <div class='onetoone'>
-        <form id='myform2'>
-          <span> <input type='button' id='less' value=' << '> </span>
-          <span> <input id='idx' name='idx' value='1'></input></span>
-          <span> <input type='button' id='more' value=' >> '> </span>
-        </form>
-     </div>
-     <p>
-  </body></html>
+                </div>
+                </div>
+                </div>
+                <p>
+                <div class='onetoone'>
+                <form id='myform2'>
+                <span> <input type='button' id='less' value=' << '> </span>
+                <span> <input id='idx' name='idx' value='1'></input></span>
+                <span> <input type='button' id='more' value=' >> '> </span>
+                </form>
+                </div>
+                <p>
+                </body></html>
                 ")
   cat(html, file = myhtml, sep='\n', append=TRUE)
   if(.Platform$OS.type == "unix") {
@@ -392,8 +394,7 @@ exploreData <- function(y=NULL, data=data, factorSize=10, dir="report", ...) {
   } else {
     shell(paste("explorer ", gsub("/", "\\\\", myhtml) ), intern=TRUE)
   }
-}
- 
+} 
  
 ###################### END exploreData ###############
 
@@ -434,7 +435,7 @@ train_test <- function(data=NULL,train=NULL,test=NULL,prop=NULL,seed=123)
 ####
 ###################
 
-Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=FALSE, formatted=TRUE, categorize=FALSE, factorVars=NULL, maxcat=10, delzero=TRUE, excel=0, excel_file=NULL) {
+Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=FALSE, formatted=TRUE, categorize=FALSE, factorVars=NULL, maxcat=10, delzero=TRUE, messages=TRUE, excel=0, excel_file=NULL) {
   ### define sub-functions
   options(warn=-1)
   g1 <- function(var)c(Mean=mean(var,na.rm=TRUE), SD=sd(var,na.rm=TRUE))
@@ -460,12 +461,13 @@ Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=FALSE, f
     }
     return(data)
   }
+
   ### proceed to convert varibles to factors
   if (categorize == T | is.null(factorVars)==F ) {
     data <- setFactors(data, factorVars, catmiss, maxcat)
   }
  
-  getSimpleTable <- function(x=x, rn=rn, data=data, miss=miss, catmiss=catmiss,formatted=formatted,categorize=categorize,maxcat=maxcat) {
+  getSimpleTable <- function(x=x, rn=rn, data=data, miss=miss, catmiss=catmiss,formatted=formatted,categorize=categorize,maxcat=maxcat, delzero=delzero) {
     if (is.null(rn)==TRUE) { rn <- x}
     ### define the column names
     tableaaaa <- cbind(V1="Variables",V2="Categories",n="n","Population")
@@ -479,14 +481,20 @@ Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=FALSE, f
     for (v in x)
     {
       if (v %in% names(data)) {
-        print(v)
+        if (messages == T) {
+          print(v)
+        }
         ### define if the actual variable has to be treated as numeric or factor
         ct <- ifelse(is.numeric(data[[v]])==T & categorize==T & ((is.null(factorVars)==F & (v %in% factorVars)) |  (is.null(factorVars)==T & length(unique(data[[v]])) <= maxcat)),1,0)
         ### treat as numeric
         if (length(unique(data[v]))==0) {
-          print(paste("The variable",v,"has no data... avoided"))
+          if (messages==T) {
+            print(paste("The variable",v,"has no data... avoided"))
+          }
         } else if (inherits(data[[v]], "Date")==TRUE) {
-          print(paste("The variable",v,"is a date. Dates are not allowed in Table1... avoided"))
+          if (messages==T) {
+            print(paste("The variable",v,"is a date. Dates are not allowed in Table1... avoided"))
+          }
         } else if (is.numeric(data[[v]])==T & ct==0) {
           ## report mean and standard deviation
           t_n <- g1(data[[v]])
@@ -551,7 +559,9 @@ Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=FALSE, f
           }
         }
       } else {
-        print (paste("The variable",v,"doesn't exists in the dataset... avoiding"))
+        if (messages==T) {
+          print (paste("The variable",v,"doesn't exists in the dataset... avoiding"))
+        }
       }
       q <- q + 1
     }
@@ -570,22 +580,29 @@ Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=FALSE, f
         ptab <- cbind(V="Variables",pval="pval", n="n")
         for (v in x) {
           if (v %in% names(data)) {
-            print(v)
+            if (messages==T) {
+              print(v)
+            }
             ct <- ifelse(is.numeric(data[[v]])==T & categorize==T & length(unique(data[[v]])) <= maxcat,1,0)
             if (is.numeric(data[[y]])==T & categorize==T & length(unique(data[[y]])) <= maxcat) {
               data[[y]] <- as.factor(data[[y]])
            } else if (is.numeric(data[[y]])==T) {
-              print(paste("The variable",y,"is not a factor. Please convert to factor or change the 'categorize' flag to TRUE."))
+              if (messages==T) {
+                print(paste("The variable",y,"is not a factor. Please convert to factor or change the 'categorize' flag to TRUE."))
+              }
               pval <- "Please rerun!!!"
             }
             if (is.numeric(data[[v]])==TRUE & length(unique(data[[v]])) > 1 & ct == 0) {
               ### first check for homoscedasticity
-              if (bartlett.test(data[[v]],data[[y]])[3] >= 0.05) {
-                ### homoskedasticity
-                pval <- round(as.numeric(car::Anova(lm(data[[v]]~data[[y]]))[1,4]),3)
-              } else {
-                pval <- round(as.numeric(car::Anova(lm(data[[v]]~data[[y]]),white.adjust=TRUE)[1,3]),3)
-              }
+              tryCatch({
+                if (bartlett.test(data[[v]], data[[y]])[3] >= 0.05) {
+                  pval <- round(as.numeric(car::Anova(lm(data[[v]] ~ data[[y]]))[1, 4]), 3)
+                } else {
+                  pval <- round(as.numeric(car::Anova(lm(data[[v]] ~ data[[y]]), white.adjust = TRUE)[1, 3]), 3)
+                }
+              }, error = function(e) {
+                pval <- "---"
+              })
             } else if (length(unique(data[[v]]))==1) {
               pval <- NA 
             } else {
@@ -606,19 +623,21 @@ Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=FALSE, f
   }
   ####################### Begin analysis
   ##### if y is null then make a simple table
-  tabaaa1 <- getSimpleTable(x=x, rn=rn, data=data, miss=miss, catmiss=catmiss,formatted=formatted,categorize=categorize,maxcat=maxcat)
+  tabaaa1 <- getSimpleTable(x=x, rn=rn, data=data, miss=miss, catmiss=catmiss,formatted=formatted,categorize=categorize,maxcat=maxcat, delzero=delzero)
   tabaaa1 <- as.tibble(tabaaa1)
   if(length(tabaaa1) > 4) {
     names(tabaaa1) <- c("V1","V2","n","Pop","pop2","pop3")
   } else {
     names(tabaaa1) <- c("V1","V2","n","Pop")
   }
- ##### if y has two levels, then make a compound comparison
+  ##### if y has two levels, then make a compound comparison
   if (is.null(y)==FALSE){
     if (y %in% names(data)) {
       if (is.factor(data[[y]])==F) {
         if (length(levels(factor(data[[y]]))) > 8) {
-          print("The dependent variable has more than 8 levels, table too large!")
+          if (messages==T) {
+            print("The dependent variable has more than 8 levels, table too large!")
+          }
         } else {
           data[[y]] <- factor(data[[y]])
         }
@@ -626,7 +645,7 @@ Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=FALSE, f
       if (length(levels(data[[y]])) >= 2) {
         for (lv in levels(data[[y]])) {
           dtsub <- subset(data, data[[y]]==lv)
-          tab <- getSimpleTable(x=x, rn=rn, data=dtsub, miss=miss, catmiss=catmiss, formatted=formatted,categorize=categorize,maxcat=maxcat)
+          tab <- getSimpleTable(x=x, rn=rn, data=dtsub, miss=miss, catmiss=catmiss, formatted=formatted,categorize=categorize,maxcat=maxcat, delzero=delzero)
           tab <- as.tibble(tab)
           if(length(tab) > 4) {
             names(tab) <- c("V1","V2","n",paste0(lv,"_1"),paste0(lv,"_2"),paste0(lv,"_3"))
@@ -634,7 +653,7 @@ Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=FALSE, f
             names(tab) <- c("V1","V2","n",lv)
           }
           tab[1,4] <- lv
-          tabaaa1 <- left_join(tabaaa1, tab)
+          tabaaa1 <- suppressMessages(dplyr::left_join(tabaaa1, tab))
         }
         # clean unnecesary rows
         if (delzero == TRUE) {
@@ -645,19 +664,17 @@ Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=FALSE, f
         ### calculate the p-value
         ptab <- as.tibble(pvals(x=x,y=y,rn=rn,data=data,categorize=categorize,maxcat=maxcat))
         names(ptab) <- c("V1","pval","n")
-        tabaaa1 <- left_join(tabaaa1, ptab)
-       
-        tabaaa1 <- tabaaa1 %>%
+        tabaaa1 <- suppressMessages(dplyr::left_join(tabaaa1, ptab))
+          tabaaa1 <- tabaaa1 %>%
           filter(Pop != " -- ") %>%
           select(-n)
-       
       }
     }
   }
   ##### Join the tables...
   Sys.setenv(JAVA_HOME="")
   if (excel==1) {
-    pkgtest("xlsx")
+    suppressPackageStartupMessages(pkgtest("xlsx"))
     wb <- createWorkbook()
     sheet1 <- createSheet(wb, sheetName="Table 1")
     addDataFrame(tabaaa1,sheet1)
