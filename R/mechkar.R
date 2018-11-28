@@ -408,6 +408,7 @@ train_test <- function(data=NULL,train_name=NULL,test_name=NULL,prop=NULL,seed=1
           message(" ")
        }
    }
+}
 ######################### END train_test ###############
 
 ############################################################################
