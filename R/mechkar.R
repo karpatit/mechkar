@@ -3,10 +3,10 @@
 #####   Author: Tomas Karpati M.D.                                      ####
 #####   Creation date: 2017-05-01                                       ####
 ############################################################################
-.onAttach <- function(...){
+#.onAttach <- function(...){
   ### this commad will increase the sleep time so packages could be installed without failing...
-  suppressMessages(trace(utils:::unpackPkgZip, quote(Sys.sleep(2.5)),at=3L,print=FALSE))
-}
+  #suppressMessages(trace(utils:::unpackPkgZip, quote(Sys.sleep(2.5)),at=3L,print=FALSE))
+#}
 
 ############################################################################
 #####   DATA VISUALIZATION                                              ####
