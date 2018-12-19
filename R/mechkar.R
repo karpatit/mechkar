@@ -415,7 +415,7 @@ train_test <- function(data=NULL,train_name=NULL,test_name=NULL,prop=NULL,seed=1
 #####   TABLE 1                                                         ####
 #####   Author: Tomas Karpati M.D.                                      ####
 #####   Creation date: 2016-03-09                                       ####
-#####   Last Modified: 2017-09-26                                       ####
+#####   Last Modified: 2018-12-19                                       ####
 ############################################################################
 
 ####################  FUNCTIONS  ###########################################
@@ -429,19 +429,25 @@ train_test <- function(data=NULL,train_name=NULL,test_name=NULL,prop=NULL,seed=1
 ####   excel_file: the name of the excel file we want to save the table (optional)
 ####
 ###################
-Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=FALSE, formatted=TRUE, categorize=FALSE, factorVars=NULL, maxcat=10, delzero=TRUE, decimals=1, messages=TRUE, excel=0, excel_file=NULL) {
+
+Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, formatted=TRUE, categorize=FALSE, 
+                    factorVars=NULL, maxcat=10, delzero=TRUE, decimals=1, messages=TRUE, excel=0, excel_file=NULL) {
   ### define sub-functions
   options(warn=-1)
   g1 <- function(var)c(Mean=mean(var,na.rm=TRUE), SD=sd(var,na.rm=TRUE))
   g2 <- function(var)c(Median=median(var,na.rm=TRUE), IQR=quantile(var,c(0.25,0.75),na.rm=TRUE))
+  msg <- NULL
+
   ### function for transforming variables to factors
   setFactors <- function(data=data, factorVars=factorVars, catmiss=catmiss, maxcat=maxcat) {
+    #print(factorVars)
     if(is.null(factorVars)==T) {
       aa <- sapply(sapply(data, unique), length)
       factorVars <- names(which(aa <= maxcat))
     }
+    #print(factorVars)
     for (v in factorVars) {
-      ct <- ifelse( ((is.null(factorVars)==F & (v %in% factorVars)) |  (is.null(factorVars)==T & length(unique(data[[v]])) <= maxcat)),1,0)
+      ct <- ifelse( ((is.null(factorVars)==F & (v %in% factorVars)) | (is.null(factorVars)==T & length(unique(data[[v]])) <= maxcat)),1,0)
       if (ct == 1) {
         data[[v]] <- factor(data[[v]])
         if(catmiss == T & sum(is.na(data[[v]])==T) > 0) {
@@ -456,8 +462,13 @@ Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=FALSE, f
   if (categorize == T | is.null(factorVars)==F ) {
     data <- setFactors(data, factorVars, catmiss, maxcat)
   }
-  getSimpleTable  <- function(x=x, rn=rn, data=data, miss=miss, catmiss=catmiss,formatted=formatted,categorize=categorize,maxcat=maxcat, delzero=delzero) {
+
+  getSimpleTable  <- function(x=x, rn=rn, data=data, miss=miss, catmiss=catmiss,formatted=formatted,
+                              categorize=categorize,maxcat=maxcat, delzero=delzero) {
     if (is.null(rn)==TRUE) { rn <- x}
+    ln <- length(x)
+    pb <- txtProgressBar(min=0,max=ln,style=3)
+    msg <- NULL
     ### define the column names
     tableaaaa <- cbind(Del="Del",V1="Variables",V2="Categories",n="n","Population")
     tablebbbb <- cbind(Del="Del",V1="Variables",V2="Categories",n="n",val1="val1",val2="val2",val3="val3")
@@ -467,22 +478,23 @@ Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=FALSE, f
     tablebbbb <- rbind(tablebbbb,tbl2)
     q <- 1
     n <- 1
+    ii <- 1
     for (v in x)
     {
       if (v %in% names(data)) {
-        if (messages == T) {
-          print(v)
-        }
         ### define if the actual variable has to be treated as numeric or factor
-        ct <- ifelse(is.numeric(data[[v]])==T & categorize==T & ((is.null(factorVars)==F & (v %in% factorVars)) |  (is.null(factorVars)==T & length(unique(data[[v]])) <= maxcat)),1,0)
+        ct <- ifelse(is.numeric(data[[v]])==T & categorize==T & 
+                     ((is.null(factorVars)==F & (v %in% factorVars)) |  
+                      (is.null(factorVars)==T & length(unique(data[[v]])) <= maxcat)),1,0)
         ### treat as numeric
         if (length(unique(data[v]))==0) {
           if (messages==T) {
-            print(paste("The variable",v,"has no data... avoided"))
+            #print(paste("The variable",v,"has no data... avoided"))
+            msg <- c(msg, paste("The variable",v,"has no data... avoided"))
           }
         } else if (inherits(data[[v]], "Date")==TRUE) {
           if (messages==T) {
-            print(paste("The variable",v,"is a date. Dates are not allowed in Table1... avoided"))
+            msg <- c(msg, paste("The variable",v,"is a date. Dates are not allowed in Table1... avoided"))
           }
         } else if (is.numeric(data[[v]])==T & ct==0) {
           ## report mean and standard deviation
@@ -502,7 +514,7 @@ Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=FALSE, f
           ## report number and percent of missing
           if (miss >= 1) {
             datams <- subset(data,is.na(data[[v]])==T)
-            if (nrow(datams)>0) {
+           if (nrow(datams)>0) {
               data$cnt <- 1
               datams$cnt <- 1
               t_n <- table(data$cnt)
@@ -523,7 +535,6 @@ Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=FALSE, f
           nm <- row.names(t_n)
           for (f in 1:length(nm)) {
             del1 <- ifelse(length(nm)==2 & (nm[f]=="No" | nm[f]=="no" | nm[f]==0 | nm[f]=="0" | nm[f]=="None" | nm[f]=="none"),1,0)
-            print(paste(f,del1, length(nm)==2, nm[f],sep=" | ")) ########
             tp <- t_n[f] / ttotal * 100
             pct <- paste(format(round(t_n[f],decimals),nsmall=0,big.mark=",")," (", format(round(tp,decimals),nsmall=1,big.mark=","), "%)",sep="")
             tbl1 <- cbind(del1,rn[q],nm[f],n=f, pct)             ########### delete rows 0/1 !!!!!!!!!
@@ -542,7 +553,7 @@ Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=FALSE, f
               tbl1 <- cbind(0,rn[q],"Missing (%)",n=f, tp)
               tbl2 <- cbind(0,rn[q],"Missing (%)",n=f, t_m, (t_m/t_n)*100, NA)
             } else {
-             tbl1 <- cbind(1,rn[q],"Missing (%)",n=f, " -- ")
+              tbl1 <- cbind(1,rn[q],"Missing (%)",n=f, " -- ")
               tbl2 <- cbind(1,rn[q],"Missing (%)",n=f, NA, NA, NA)
             }
             tableaaaa <- rbind(tableaaaa,tbl1)
@@ -551,35 +562,36 @@ Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=FALSE, f
         }
       } else {
         if (messages==T) {
-          print (paste("The variable",v,"doesn't exists in the dataset... avoiding"))
+          msg <- c(msg, paste("The variable",v,"doesn't exists in the dataset... avoiding"))
         }
       }
       q <- q + 1
+      setTxtProgressBar(pb,ii)
+      ii <- ii + 1
     }
     if(formatted==TRUE) {
       return(tableaaaa)
     } else {
       return(tablebbbb)
     }
+    close(pb)
   }
+
   pvals <- function(x=x,y=y,rn=rn,data=data,categorize=categorize,maxcat=maxcat) {
     if (is.null(y)==FALSE) {
       if (y %in% names(data)) {
         if (is.null(rn)==TRUE | length(rn)<2) {rn <- x}
-        require(car)
+        suppressMessages(require(car))
         q <- 1
         ptab <- cbind(V="Variables",pval="pval", n="n")
         for (v in x) {
           if (v %in% names(data)) {
-            if (messages==T) {
-              print(v)
-            }
             ct <- ifelse(is.numeric(data[[v]])==T & categorize==T & length(unique(data[[v]])) <= maxcat,1,0)
             if (is.numeric(data[[y]])==T & categorize==T & length(unique(data[[y]])) <= maxcat) {
               data[[y]] <- as.factor(data[[y]])
             } else if (is.numeric(data[[y]])==T) {
               if (messages==T) {
-                print(paste("The variable",y,"is not a factor. Please convert to factor or change the 'categorize' flag to TRUE."))
+                msg <- c(msg, paste("The variable",y,"is not a factor. Please convert to factor or change the 'categorize' flag to TRUE."))
               }
               pval <- "Please rerun!!!"
             }
@@ -591,18 +603,21 @@ Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=FALSE, f
                 } else {
                   pval <- round(as.numeric(car::Anova(lm(data[[v]] ~ data[[y]]), white.adjust = TRUE)[1, 3]), 3)
                 }
+
               }, error = function(e) {
                 pval <- "---"
               })
             } else if (length(unique(data[[v]]))==1) {
-              pval <- NA 
+              pval <- NA
             } else {
               if (min(table(data[[v]],data[[y]])) > 5) {
                 pval <- round(as.numeric(chisq.test(data[[v]],data[[y]])$p.val),3)
               } else {
                 if(min(table(data[[v]],data[[y]]))==0) {
                   #in cases where there are cells with zero, we use Fisher's exact test
-                  pval <- round(as.numeric(fisher.test(data[[v]],data[[y]], workspace=1e9)$p.val),3)
+                  tryCatch(
+                    pval <- round(as.numeric(fisher.test(data[[v]],data[[y]], workspace=1e9)$p.val),3),
+                    error = function(e) {msg <- c(msg,paste0("Unable to calcualte the Fisher test for variables ",v," and ",y))})
                 } else {
                   pval <- round(as.numeric(kruskal.test(data[[v]],data[[y]], workspace=1e9)$p.val),3)
                 }
@@ -616,11 +631,13 @@ Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=FALSE, f
     }
     return(ptab)
   }
+
   ####################### Begin analysis
   ##### if y is null then make a simple table
-  tabaaa1 <- getSimpleTable(x=x, rn=rn, data=data, miss=miss, catmiss=catmiss,formatted=formatted,categorize=categorize,maxcat=maxcat, delzero=delzero)
+  tabaaa1 <- getSimpleTable(x=x, rn=rn, data=data, miss=miss, catmiss=catmiss,formatted=formatted,
+                            categorize=categorize,maxcat=maxcat, delzero=delzero)
   tabaaa1 <- as.tibble(tabaaa1)
-  ############################  CHANGE TO 5 !!!!!!!!!!!!!!
+  ############################ 
   if(length(tabaaa1) > 5) {
     names(tabaaa1) <- c("Del","V1","V2","n","Pop","pop2","pop3")
   } else {
@@ -632,24 +649,27 @@ Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=FALSE, f
       if (is.factor(data[[y]])==F) {
         if (length(levels(factor(data[[y]]))) > 8) {
           if (messages==T) {
-            print("The dependent variable has more than 8 levels, table too large!")
+            warning("The dependent variable has more than 8 levels, table too large!")
           }
         } else if(min(table(data[[y]]))==0) {
-          print("The dependent variable has one or more levels with no individuals assigned!")
+          warning("The dependent variable has one or more levels with no individuals assigned!")
         } else {
-         data[[y]] <- factor(data[[y]])
+          data[[y]] <- factor(data[[y]])
         }
       }
       if (length(levels(data[[y]])) >= 2) {
         for (lv in levels(data[[y]])) {
           dtsub <- subset(data, data[[y]]==lv)
-          tab <- getSimpleTable(x=x, rn=rn, data=dtsub, miss=miss, catmiss=catmiss, formatted=formatted,categorize=categorize,maxcat=maxcat, delzero=delzero)
+          tab <- getSimpleTable(x=x, rn=rn, data=dtsub, miss=miss,catmiss=catmiss, formatted=formatted,
+                                categorize=categorize,maxcat=maxcat, delzero=delzero)
           tab <- as.tibble(tab)
+          ############################ 
           if(length(tab) > 5) {
             names(tab) <- c("Del","V1","V2","n",paste0(lv,"_1"),paste0(lv,"_2"),paste0(lv,"_3"))
           } else {
             names(tab) <- c("Del","V1","V2","n",lv)
           }
+          ############################  
           tab[1,5] <- lv
           tabaaa1 <- suppressMessages(dplyr::left_join(tabaaa1, tab))
         }
@@ -659,15 +679,22 @@ Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=FALSE, f
           tabaaa1 <- tabaaa1 %>%
             dplyr::filter(Del==0)
         }
+
         ### calculate the p-value
         ptab <- as.tibble(pvals(x=x,y=y,rn=rn,data=data,categorize=categorize,maxcat=maxcat))
         names(ptab) <- c("V1","pval","n")
         tabaaa1 <- suppressMessages(dplyr::left_join(tabaaa1, ptab))
+
         tabaaa1 <- tabaaa1 %>%
           dplyr::filter(Pop != " -- ") %>%
           dplyr::select(-n) %>%
           dplyr::select(-Del)
+        #tabaaa1
       }
+    }
+    if (messages == T & is.null(msg)==F) {
+      print("")
+      print(msg)
     }
   }
   ##### Join the tables...
@@ -684,6 +711,7 @@ Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=FALSE, f
     return(tabaaa1)
   }
 }
+
 ########################## END Table1 ###############
 
 ############################################################################
