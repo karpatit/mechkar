@@ -1596,22 +1596,22 @@ getMissingness <- function(data, getRows=FALSE) {
     nadf[[n]] <- ifelse(is.na(nadf[[n]])==T,1,0)
     cnt <- rbind(cnt, data.frame(n,sum(nadf[[n]])))
   }
-  names(cnt) <- c("var","na.count")
-  cnt$rate <- round((cnt$na.count / nrow(nadf))*100,1)
+  names(cnt) <- c("var","na_count")
+  cnt$rate <- round((cnt$na_count / nrow(nadf))*100,1)
   ### now sum by column
-  nadf$na.cnt <- 0
-  nadf$na.cnt <- rowSums(nadf)
+  nadf$na_cnt <- 0
+  nadf$na_cnt <- rowSums(nadf)
   ### order descending the count of mossings and leave only those with missings
   cnt <- cnt %>%
-    dplyr::arrange(desc(na.count)) %>%
-    dplyr::filter(na.count>0)
-  totmiss <- nadf %>% dplyr::filter(na.cnt==0) %>% dplyr::summarise(n=n())
+    dplyr::arrange(desc(na_count)) %>%
+    dplyr::filter(na_count>0)
+  totmiss <- nadf %>% dplyr::filter(na_cnt==0) %>% dplyr::summarise(n=n())
   idx <- NULL
   msg <- (paste("This dataset has ", as.character(totmiss), " (",as.character(round(totmiss/nrow(data)*100,1)),"%)" ," complete rows. Original data has ",nrow(data)," rows.",sep=""))
   ### check id needs to return the row indexes
   if(getRows==TRUE & totmiss != 0) {
     nadf$rn <- seq_len(nrow(data))
-    idx <- nadf %>% dplyr::filter(na.cnt==0) %>% dplyr::select(rn)
+    idx <- nadf %>% dplyr::filter(na_cnt==0) %>% dplyr::select(rn)
   }
   print(list(head(cnt,n=10), msg))
   return(list(missingness=cnt, message=msg, rows=idx$rn))
