@@ -1605,6 +1605,7 @@ getMissingness <- function(data, getRows=FALSE) {
   cnt <- cnt %>%
     dplyr::arrange(desc(na_count)) %>%
     dplyr::filter(na_count>0)
+  #totmiss <- nadf %>% dplyr::filter(na_cnt==0) %>% dplyr::tally()
   totmiss <- nadf %>% dplyr::filter(na_cnt==0) %>% dplyr::summarise(n=n())
   idx <- NULL
   msg <- (paste("This dataset has ", as.character(totmiss), " (",as.character(round(totmiss/nrow(data)*100,1)),"%)" ," complete rows. Original data has ",nrow(data)," rows.",sep=""))
