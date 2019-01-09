@@ -375,47 +375,6 @@ exploreData <- function(y=NULL, data=data, factorSize=10, dir="report", ...) {
 ###################### END exploreData ###############
 
 ############################################################################
-#####   TEST & TRAIN DATASET GENERATION                                 ####
-#####   Author: Tomas Karpati M.D.                                      ####
-#####   Creation date: 2016-08-17                                       ####
-############################################################################
-train_test <- function(data=NULL,train_name=NULL,test_name=NULL,prop=NULL,seed=123,tableone=False)
-{
-  checkTrainTest <- function(train=NULL,test=NULL) {
-     train[["traintest_ind_"]] <- 1
-     test[["traintest_ind_"]] <- 2
-     data <- rbind(train, test)
-     tab <- Table1(data=data, y="traintest_ind_",x=names(train),messages = F)
-     vars <- subset(tab, pval < 0.05)$V1
-     if (length(vars)==1) {
-        message("You got a perfectly balanced training and test datasets")
-        message(" ")
-     } else {
-        message("WARNING: The following variables are not balanced between the training and test datasets:")
-       for (v in vars) { message(paste("*",v)) }
-          message("You can try to change the seed value until you get a balanced partition.")
-          message("Alternatively, you can ommit this warning and exclude those variables from your model")
-          message(" ")
-       }
-       return(tab)
-  }
-  ## set the seed to make your partition reproductible
-  set.seed(seed)
-  smp_size <- floor(prop * nrow(data))
-  train_ind <- sample(seq_len(nrow(data)), size = smp_size)
-  assign(train_name, data[train_ind, ], envir=globalenv())
-  assign(test_name, data[-train_ind, ], envir=globalenv())
-  tab = checkTrainTest(get(train_name),get(test_name))
-  message(paste("Dataset partitioned into:"))
-  message(paste(" + Train dataset:", train_name))
-  message(paste(" + Test dataset:", test_name))
-  if(tableone==TRUE) {
-     return(tab)
-  } 
-}
-######################### END train_test ###############
-
-############################################################################
 #####   TABLE 1                                                         ####
 #####   Author: Tomas Karpati M.D.                                      ####
 #####   Creation date: 2016-03-09                                       ####
@@ -717,6 +676,47 @@ Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, fo
 }
 
 ########################## END Table1 ###############
+
+############################################################################
+#####   TEST & TRAIN DATASET GENERATION                                 ####
+#####   Author: Tomas Karpati M.D.                                      ####
+#####   Creation date: 2016-08-17                                       ####
+############################################################################
+train_test <- function(data=NULL,train_name=NULL,test_name=NULL,prop=NULL,seed=123,tableone=False)
+{
+  checkTrainTest <- function(train=NULL,test=NULL) {
+     train[["traintest_ind_"]] <- 1
+     test[["traintest_ind_"]] <- 2
+     data <- rbind(train, test)
+     tab <- Table1(data=data, y="traintest_ind_",x=names(train),messages = F)
+     vars <- subset(tab, pval < 0.05)$V1
+     if (length(vars)==1) {
+        message("You got a perfectly balanced training and test datasets")
+        message(" ")
+     } else {
+        message("WARNING: The following variables are not balanced between the training and test datasets:")
+       for (v in vars) { message(paste("*",v)) }
+          message("You can try to change the seed value until you get a balanced partition.")
+          message("Alternatively, you can ommit this warning and exclude those variables from your model")
+          message(" ")
+       }
+       return(tab)
+  }
+  ## set the seed to make your partition reproductible
+  set.seed(seed)
+  smp_size <- floor(prop * nrow(data))
+  train_ind <- sample(seq_len(nrow(data)), size = smp_size)
+  assign(train_name, data[train_ind, ], envir=globalenv())
+  assign(test_name, data[-train_ind, ], envir=globalenv())
+  tab = checkTrainTest(get(train_name),get(test_name))
+  message(paste("Dataset partitioned into:"))
+  message(paste(" + Train dataset:", train_name))
+  message(paste(" + Test dataset:", test_name))
+  if(tableone==TRUE) {
+     return(tab)
+  } 
+}
+######################### END train_test ###############
 
 ############################################################################
 #####   CREATE A SLQ REPRESENTATION FROM A SOME MODELS                  ####
