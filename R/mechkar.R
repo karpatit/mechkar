@@ -379,25 +379,15 @@ exploreData <- function(y=NULL, data=data, factorSize=10, dir="report", ...) {
 #####   Author: Tomas Karpati M.D.                                      ####
 #####   Creation date: 2016-08-17                                       ####
 ############################################################################
-train_test <- function(data=NULL,train_name=NULL,test_name=NULL,prop=NULL,seed=123)
+train_test <- function(data=NULL,train_name=NULL,test_name=NULL,prop=NULL,seed=123,tableone=False)
 {
-  ## set the seed to make your partition reproductible
-  set.seed(seed)
-  smp_size <- floor(prop * nrow(data))
-  train_ind <- sample(seq_len(nrow(data)), size = smp_size)
-  assign(train_name, data[train_ind, ], envir=globalenv())
-  assign(test_name, data[-train_ind, ], envir=globalenv())
-  checkTrainTest(get(train_name),get(test_name))
-  message(paste("Dataset partitioned into:"))
-  message(paste(" + Train dataset:", train_name))
-  message(paste(" + Test dataset:", test_name))
   checkTrainTest <- function(train=NULL,test=NULL) {
      train[["traintest_ind_"]] <- 1
      test[["traintest_ind_"]] <- 2
      data <- rbind(train, test)
      tab <- Table1(data=data, y="traintest_ind_",x=names(train),messages = F)
      vars <- subset(tab, pval < 0.05)$V1
-     if (length(vars)==0) {
+     if (length(vars)==1) {
         message("You got a perfectly balanced training and test datasets")
         message(" ")
      } else {
@@ -407,7 +397,21 @@ train_test <- function(data=NULL,train_name=NULL,test_name=NULL,prop=NULL,seed=1
           message("Alternatively, you can ommit this warning and exclude those variables from your model")
           message(" ")
        }
-   }
+       return(tab)
+  }
+  ## set the seed to make your partition reproductible
+  set.seed(seed)
+  smp_size <- floor(prop * nrow(data))
+  train_ind <- sample(seq_len(nrow(data)), size = smp_size)
+  assign(train_name, data[train_ind, ], envir=globalenv())
+  assign(test_name, data[-train_ind, ], envir=globalenv())
+  tab = checkTrainTest(get(train_name),get(test_name))
+  message(paste("Dataset partitioned into:"))
+  message(paste(" + Train dataset:", train_name))
+  message(paste(" + Test dataset:", test_name))
+  if(tableone==TRUE) {
+     return(tab)
+  } 
 }
 ######################### END train_test ###############
 
