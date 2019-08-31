@@ -29,9 +29,9 @@ data <- airquality
 data[4:10,3] <- rep(NA,7)
 data[1:5,4] <- NA
 aa <- getMissingness(data)
-aa
-### Shows the list of variables with missing values and the number of complete aa <- getMissingness(data,getRows=TRUE)
-aa
+
+### Shows the list of variables with missing values and the number of complete rows
+aa <- getMissingness(data,getRows=TRUE)
 ind <- aa[[3]]
 complete <- data[ind,]
 incomplete <- data[-ind,]

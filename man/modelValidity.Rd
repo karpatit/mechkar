@@ -5,15 +5,17 @@
 Return discriminative and calibration measures for predictive models
 }
 \description{
-This function returns common statistical validity metrics used for testing the discriminative power and calibration of a predictive model. 
+This function returns common statistical validity metrics used for testing the discriminative power and calibration of a predictive model.
 }
 \usage{
-modelValidityTest(data,model,class)
+modelValidity(data,model,class, train = FALSE, calib.graph=FALSE)
 }
 \arguments{
 \item{data}{a data frame contining the data to be tested on the model}
 \item{model}{the model to be tested}
 \item{class}{the name (as a string) of the outcome variable}
+\item{train}{a logical value indicating if the data comes from the same dataset used to train the model. Defaults is FALSE}
+\item{calib.graph}{a logical value indicating if the calibration graph has to be generated. Deafault is FALSE }
 }
 \details{
 The modelValidity function returns a summary table with the validity metrics most commonly used in predictive modeling.
@@ -45,6 +47,6 @@ pr <- exp(xb)/(1+exp(xb))
 y <- 1*(runif(n) < pr)
 mod <- glm(y~x, family="binomial")
 vt <- modelValidity(data.frame(x=x,y=y),mod,"y")
-vt
+
 }
 \keyword{ package }

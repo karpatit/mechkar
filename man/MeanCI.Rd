@@ -16,7 +16,7 @@ Tomas Karpati M.D.
 }
 \examples{
 ### calculates the mean and 95\% CI of a given vector
-x <- x=c(1,0,1,0,0,0,1,1,0)
-MeanCI(x)
+x <- c(1,0,1,0,0,0,1,1,0)
+mn <- MeanCI(x)
 }
 \keyword{ package }

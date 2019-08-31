@@ -1,1 +1,8 @@
 exportPattern("^[[:alpha:]]+")
+importFrom("graphics", "lines", "plot","abline","hist")
+importFrom("utils", "data", "head","globalVariables")
+importFrom("dplyr", "select", "filter","%>%","arrange","group_by","mutate","summarise","summarize")
+importFrom("Hmisc", "%nin%")
+importFrom("ggplot2", "ggplot", "aes","xlab","ylab","labs","geom_smooth","geom_boxplot")
+importFrom("tibble","tibble","as.tibble")
+importFrom("xlsx","createWorkbook","createSheet","addDataFrame","saveWorkbook")

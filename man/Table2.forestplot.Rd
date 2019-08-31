@@ -12,8 +12,7 @@ Table2.forestplot(mod, nr=NULL)
 }
 \arguments{
 \item{mod}{the model name}
-\item{nr}{(Optional) A data frame containing two columns: the first column with the text to be used
-for each of the variables, and the second column with the names of the categories for nominal variables.
+\item{nr}{(Optional) A data frame containing two columns: the first column with the text to be used for each of the variables, and the second column with the names of the categories for nominal variables.
 If ommited, the original variable names as appear in the model will be used. }
 }
 \details{
@@ -24,17 +23,15 @@ This function generates a plot that is paper ready. We recommend to save it as P
 Tomas Karpati M.D.
 }
 \examples{
-require(catdata)
-data(medcare)
-medcare$sex <- factor(medcare$male, levels=c(1,0), labels=c("Male","Female"))
-medcare$male <-NULL
-medcare$married <- factor(medcare$married, levels=c(0,1), labels=c("Not Married","Married"))
-medmod <- glm(hosp ~. , data=medcare)
-summary(medmod)
-Table2.forestplot(medmod)
-nr <- data.frame(v1=c("Intercept","Physician Visits","Poor health","Excellent health",
-                      "# chronic diseases","Age","Married","Years in school","Sex"),
-                 v2=c("","","","","","","Married","","Female"))
-Table2.forestplot(medmod, nr=nr)
+df <- MASS::biopsy[,2:11]
+mod <- glm(class ~ ., data=df ,family = "binomial")
+vn <- c("Intercept","clump thickness","uniformity cell size","uniformity cell shape",
+        "marginal adhesion","epithelial cell size","bare nuclei",
+        "bland chromatin","normal nucleoli","mitoses")
+rn <- data.frame(vars=vn,cats=rep("",10))
+
+tab2 <- Table2(mod=mod,rv = vn)
+Table2.forestplot(mod)
+Table2.forestplot(mod=mod,nr=rn)
 }
 \keyword{ package }

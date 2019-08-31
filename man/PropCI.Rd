@@ -5,7 +5,7 @@
 PropCI(x,round=3,multi=100,ref=2)
 }
 \description{
-This function return a vector containing the Proportion and 95\% confidence interval of a vector. The returning vector will contain the category that was used to calculate the proportion. If the user prefer that the reported category will be that used as reference, then must set second to FALSE 
+This function return a vector containing the Proportion and 95\% confidence interval of a vector. The returning vector will contain the category that was used to calculate the proportion. If the user prefer that the reported category will be that used as reference, then must set second to FALSE
 }
 \arguments{
 \item{x}{a numeric vector}
@@ -19,12 +19,12 @@ Tomas Karpati M.D.
 \examples{
 ### calculates the proportion and 95\% CI of a numeric dichotomic vector
 x <- c(1,0,1,0,0,0,1,1,0)
-PropCI(x)
+pp <- PropCI(x)
 
 ### calculate the proportion and 95\% CI of a character dichotomic vector
 n <- c("a","a","b","b","a","b","a")
-PropCI(n)
+pp <- PropCI(n)
 ### change the report to the other category
-PropCI(n,ref=1)
+pp <- PropCI(n,ref=1)
 }
 \keyword{ package }
