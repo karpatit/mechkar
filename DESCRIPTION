@@ -1,12 +1,34 @@
 Package: mechkar
 Type: Package
-Title: Set of utilities to help managing different stages of the research process
-Version: 1.13.2
-Date: 2019-01-19
+Title: Set of Utilities to Help Managing Different Stages of the Research Process
+Version: 1.14.0
+Date: 2019-08-29
 Author: Tomas Karpati MD
 Maintainer: Tomas Karpati MD <karpati@it4biotech.com>
-Depends: car, Hmisc, sqldf, ROSE, pROC, ResourceSelection, sjstats, sjmisc, InformationValue, gmodels, dplyr, tibble, dtplyr, dbplyr, givitiR, mice
-Suggests: xlsx, odbc, DBI,
-Description: This package contains utilities that help researchers in their research work.
-License: GPL-2
-LazyData: true
+Description: Utilities that help researchers in their research work.
+URL: https://github.com/karpatit/mechkar
+Depends: R (>= 3.3.0)
+Imports: 
+  stats, 
+  grDevices, 
+  rlang, 
+  utils, 
+  car, 
+  Hmisc, 
+  ROSE, 
+  pROC, 
+  ResourceSelection, 
+  sjstats, 
+  sjmisc, 
+  InformationValue, 
+  gmodels, 
+  dplyr, 
+  tibble, 
+  givitiR, 
+  coxphw, 
+  ggplot2, 
+  xlsx, 
+  MASS
+License: GPL-3
+NeedsCompilation: no
+LazyLoad: yes

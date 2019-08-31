@@ -33,7 +33,7 @@ This function creates a table showing the most common statistical validity metri
 ######################################################
 }
 \usage{
-ValidityTest(a=null,b=null,c=null,d=null,multi=100)
+ValidityTest(a,b,c,d,multi=100,caption = "Validity of the Model/Screening")
 }
 \arguments{
 \item{a}{the true positive (TP) value}
@@ -41,6 +41,7 @@ ValidityTest(a=null,b=null,c=null,d=null,multi=100)
 \item{c}{the false negative (FN) value}
 \item{d}{the true negative (TN) value}
 \item{multi}{(Optional) The multiplier for the values. The default is 100 for calculating the percentage.}
+\item{caption}{the text to be printed as the title.}
 }
 \details{
 The ValidityTest function returns a summary table with the validity metrics most commonly used in epidemiology and in statistical analysis.
@@ -70,6 +71,6 @@ All results are given with their confidence intervals.
 Tomas Karpati M.D.
 }
 \examples{
-ValidityTest(110,20,80,324)
+tab1 <- ValidityTest(110,20,80,324)
 }
 \keyword{ package }
