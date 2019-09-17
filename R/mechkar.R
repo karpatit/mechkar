@@ -1201,14 +1201,14 @@ modelValidity <- function (data, model, class, train=FALSE, calib.graph=FALSE)
   hl <- ResourceSelection::hoslem.test(model$y, stats::fitted(model), g = 10)$p.value
   cm <- table(actual = data[, class], fitted = ifelse(data[["pred"]] >= 0.5, 1, 0))
   mmce <- 1 - (sum(diag(cm))/sum(cm))
-  d <- sjstats::cod(model)$cod
+  #d <- sjstats::cod(model)$cod
   if (is.factor(data[, class])==T) {data[,class] <- as.numeric(data[, class])-1}
   acc <- ROSE::accuracy.meas(data[,class],data[["pred"]])
   srme <-sqrt((sum((data[, class] - data[["pred"]])^2,na.rm=T))/nrow(data))
   vld <- cbind(auc = roc1$auc, cimin = pROC::ci(roc1)[1], cimax = pROC::ci(roc1)[3],
                SRME = srme,
                precision = acc$precision, recall = acc$recall, fscore = acc$F,
-               NPV =  InformationValue::npv(data[, class], data[["pred"]]), D = d, mmce = mmce, Hosmer_Lemeshow = hl,GiViTI_calibration=cb)
+               NPV =  InformationValue::npv(data[, class], data[["pred"]]), mmce = mmce, Hosmer_Lemeshow = hl,GiViTI_calibration=cb)
   vld <- round(vld, 3)
   return(vld)
 }
