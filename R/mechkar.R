@@ -143,7 +143,16 @@ exploreData <- function(y=NULL, data=data, factorSize=10, dir="report", ...) {
     if(length(outl)>0) {
       df$cl[which(df$x %in% outl)] <- 2
     }
-    pl <- stats::scatter.smooth(df$x,col=df$cl)
+    #pl <- stats::scatter.smooth(df$x,col=df$cl)
+    pl <- tryCatch({
+      stats::scatter.smooth(df$x,col=df$cl,xlab="index")
+    }, warning = function(w) {
+      n <- "warning!"
+    }, error = function(e) {
+      n <- "error!"
+    }, finally = {
+      graphics::plot(df$x ~ row.names(df),col=df$cl,xlab="index")
+    })
     ma <- mean(x, na.rm=TRUE)
     s <- stats::sd(x, na.rm=TRUE)
     graphics::abline(h=ma-(2*s), col="red", lty=2)
@@ -171,7 +180,7 @@ exploreData <- function(y=NULL, data=data, factorSize=10, dir="report", ...) {
     } else if (length(unique(bp)) == 0) {
       xtrm <- "No outlier values found"
     } else {
-      xtrm <- paste(formatC(bp), collapse=', ' )
+      xtrm <- paste(formatC(unique(bp)), collapse=', ' )
     }
     imgsrc = paste(paste0(srcdir,"/fig/"),imgname, "_2.png",sep="")
     html <- paste0("<div class='Cell'><img class='origimg' src='",imgsrc,"' height='150' width='250'><br> <u>Outlier values</u>: <br> ", xtrm, "</div>")
@@ -334,10 +343,15 @@ exploreData <- function(y=NULL, data=data, factorSize=10, dir="report", ...) {
       text-align: center;
       font-weight: bold;
       font-size: larger;
+      background-color:#4C6F50;
+      color: #fff;
       }
       .Row
       {
       display: table-row;
+      }
+      .Row:nth-child(even) {
+        background-color: #56882433;
       }
       .Cell
       {
@@ -347,7 +361,7 @@ exploreData <- function(y=NULL, data=data, factorSize=10, dir="report", ...) {
       padding-left: 5px;
       padding-right: 5px;
       vertical-align: top;
-      font-family: 'arial';
+      font-family: Arial, Helvetica, sans-serif;
       font-size: 14px;
       }
       </style>

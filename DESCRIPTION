@@ -1,8 +1,8 @@
 Package: mechkar
 Type: Package
 Title: Set of Utilities to Help Managing Different Stages of the Research Process
-Version: 1.14.0
-Date: 2019-08-29
+Version: 1.14.1
+Date: 2020-01-08
 Author: Tomas Karpati MD
 Maintainer: Tomas Karpati MD <karpati@it4biotech.com>
 Description: Utilities that help researchers in their research work.
