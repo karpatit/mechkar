@@ -14,7 +14,7 @@
 
 ###################################################
 
-exploreData <- function(y=NULL, data=data, factorSize=10, dir="report", ...) {
+exploreData <- function(data=data, y=NULL, rn=NULL, factorSize=10, dir="report", debug=FALSE, ...) {
 
   get_computer_type <- function(){
     # check if current R client is running on PC or on the server
@@ -166,9 +166,9 @@ exploreData <- function(y=NULL, data=data, factorSize=10, dir="report", ...) {
   getScatterGraph <- function(df=data,x,y,dtype=1) {
     #  mod <- tryCatch({
     if(dtype==1) {
-      pl <- ggplot2::ggplot(df) + ggplot2::geom_smooth(aes(x=data[[x]], y=data[[y]]), method="loess") + xlab(x) + ylab(y)
+      pl <- ggplot2::ggplot(df) + ggplot2::geom_smooth(ggplot2::aes(x=data[[x]], y=data[[y]]), method="loess") + ggplot2::xlab(x) + ggplot2::ylab(y)
     } else {
-      pl <- ggplot2::ggplot(df) + ggplot2::geom_boxplot(aes(y=data[[x]], color=data[[y]])) + xlab(x) + ylab(y) + labs(color=y)
+      pl <- ggplot2::ggplot(df) + ggplot2::geom_boxplot(ggplot2::aes(y=data[[x]], color=data[[y]])) + ggplot2::xlab(x) + ggplot2::ylab(y) + ggplot2::labs(color=y)
     }
     return(pl)
   }
@@ -188,6 +188,19 @@ exploreData <- function(y=NULL, data=data, factorSize=10, dir="report", ...) {
   }
   ################## Prepare for the report ###################
   #report <- paste(mydir,"/report",sep="")
+
+  ################## Check for values for rn ##################
+  if(!is.null(rn)) {
+    if(length(rn)!=ncol(data)) {
+      message("the value of the 'rn' argument was avoided because it does not have the same number of columns of the dataframe")
+      rn <- NULL
+    }
+    xname <- rn
+    names(xname) <- names(data)
+  } else {
+    xname <- NULL
+  }
+
   report <- dir
   if (!file.exists(report)) {
     dir.create(report)
@@ -395,52 +408,72 @@ exploreData <- function(y=NULL, data=data, factorSize=10, dir="report", ...) {
 
   #### determinate the type of each variable...
   data_types <- sapply(sapply(data, class), whatVarType)
-
+  ln <- length(data)
+  ii <- 0
+  pb <- utils::txtProgressBar(min=0,max=ln,style=3)
   for(x in names(data)) {
-    print(x)
-    html <- paste("<div class='Row'><div class='Cell'><b>",x,"</b></div>")
-    cat(html, file = myhtml, sep='\n', append=TRUE)
-    #### initialize the first graph
-    imgname = paste(fig,"/",x, "_1.png",sep="")
-    imgsrc = paste(paste0(srcdir,"/fig/"),x, "_1.png",sep="")
-    ### send the data with the type to generate the correct graph..
-    grDevices::png(imgname)
-    drawGraphOne(x, data[[x]], data_types[x])
-    grDevices::dev.off()
-    html <- paste0("<div class='Cell'><img class='origimg'  src='",imgsrc,"' height='150' width='150'><br></div>")
-    cat(html, file = myhtml, sep='\n', append=TRUE)
 
-    # second, show the statistics
-    html <- getStats(data[[x]],data_types[x])
-    cat(html, file = myhtml, sep='\n', append=TRUE)
-
-    # third, determine the outliers
-    imgname = paste(fig,"/",x, "_2.png",sep="")
-    if(data_types[x]==1) {
-      grDevices::png(imgname)
-      getOutlierGraph(data[[x]])
-      grDevices::dev.off()
-      html <- getOutliersHtml(x,data[[x]],srcdir)
+    ## check if the value has at least more than one unique value...
+    if(length(unique(data[[x]])) < 2) {
+      message(paste("The variable",x,"has less than two unique values, so will not be included"))
     } else {
-      html <- "<div class='Cell'></div>"
-    }
-    cat(html, file = myhtml, sep='\n', append=TRUE)
 
-    # fourth, if y is assigned, make a corresponding plot
-    if(is.null(y)==FALSE) {
-      imgname = paste(fig,"/",x, "_3.png",sep="")
-      imgsrc = paste(paste0(srcdir,"/fig/"),x, "_3.png",sep="")
-      #print(imgname)
-      grDevices::png(imgname)
-      ### scatter.smooth(data[[x]] ~ data[[y]])
-      #suppressWarnings(getScatterGraph(data,x,y,data_types[y]))
-      plot(getScatterGraph(data,x,y,data_types[y]))
-      grDevices::dev.off()
-      html <- paste0("<div class='Cell'><img class='origimg' src='",imgsrc,"' height='150' width='150'><br></div>")
+      if(debug==TRUE) {
+        print(x)
+      } else {
+        pb <- utils::txtProgressBar(min=0,max=ln,style=3)
+      }
+
+      html <- paste("<div class='Row'><div class='Cell'><b>",x,"</b><p>",xname[x],"</p></div>")
+
       cat(html, file = myhtml, sep='\n', append=TRUE)
+      #### initialize the first graph
+      imgname = paste(fig,"/",x, "_1.png",sep="")
+      imgsrc = paste(paste0(srcdir,"/fig/"),x, "_1.png",sep="")
+      ### send the data with the type to generate the correct graph..
+      grDevices::png(imgname)
+      drawGraphOne(x, data[[x]], data_types[x])
+      grDevices::dev.off()
+      html <- paste0("<div class='Cell'><img class='origimg'  src='",imgsrc,"' height='150' width='150'><br></div>")
+      cat(html, file = myhtml, sep='\n', append=TRUE)
+
+      # second, show the statistics
+      html <- getStats(data[[x]],data_types[x])
+      cat(html, file = myhtml, sep='\n', append=TRUE)
+
+      # third, determine the outliers
+      imgname = paste(fig,"/",x, "_2.png",sep="")
+      if(data_types[x]==1) {
+        grDevices::png(imgname)
+        getOutlierGraph(data[[x]])
+        grDevices::dev.off()
+        html <- getOutliersHtml(x,data[[x]],srcdir)
+      } else {
+        html <- "<div class='Cell'></div>"
+      }
+      cat(html, file = myhtml, sep='\n', append=TRUE)
+
+      # fourth, if y is assigned, make a corresponding plot
+      if(is.null(y)==FALSE) {
+        imgname = paste(fig,"/",x, "_3.png",sep="")
+        imgsrc = paste(paste0(srcdir,"/fig/"),x, "_3.png",sep="")
+        #print(imgname)
+        grDevices::png(imgname)
+        ### scatter.smooth(data[[x]] ~ data[[y]])
+        #suppressWarnings(getScatterGraph(data,x,y,data_types[y]))
+        plot(getScatterGraph(data,x,y,data_types[y]))
+        grDevices::dev.off()
+        html <- paste0("<div class='Cell'><img class='origimg' src='",imgsrc,"' height='150' width='150'><br></div>")
+        cat(html, file = myhtml, sep='\n', append=TRUE)
+      }
+      html <- paste("</div>")
+      cat(html, file = myhtml, sep='\n', append=TRUE)
+
+      if(debug==FALSE) {
+        utils::setTxtProgressBar(pb,ii)
+        ii <- ii + 1
+      }
     }
-    html <- paste("</div>")
-    cat(html, file = myhtml, sep='\n', append=TRUE)
   }
   html <- paste("</div>")
   cat(html, file = myhtml, sep='\n', append=TRUE)
@@ -473,6 +506,7 @@ exploreData <- function(y=NULL, data=data, factorSize=10, dir="report", ...) {
 
 ###################### END exploreData ###############
 
+
 ############################################################################
 #####   TABLE 1                                                         ####
 #####   Author: Tomas Karpati M.D.                                      ####
@@ -492,8 +526,9 @@ exploreData <- function(y=NULL, data=data, factorSize=10, dir="report", ...) {
 ####
 ###################
 
-Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, formatted=TRUE, categorize=FALSE,
-                    factorVars=NULL, maxcat=10, delzero=TRUE, decimals=1, messages=TRUE, excel=0, excel_file=NULL) {
+Table1a <- function(x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, formatted=TRUE, categorize=FALSE,
+                    factorVars=NULL, maxcat=10, delzero=TRUE, decimals=1, messages=TRUE, excel=0, excel_file=NULL,
+                    debug=FALSE) {
   ### define sub-functions
   options(warn=-1)
   Del <- NULL
@@ -632,8 +667,12 @@ Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, fo
         }
       }
       q <- q + 1
-      utils::setTxtProgressBar(pb,ii)
-      ii <- ii + 1
+      if(debug==FALSE) {
+        utils::setTxtProgressBar(pb,ii)
+        ii <- ii + 1
+      } else {
+        print(v)
+      }
     }
     if(formatted==TRUE) {
       return(tableaaaa)
@@ -651,6 +690,11 @@ Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, fo
         if (is.null(rn)==TRUE | length(rn)<2) {rn <- x}
         q <- 1
         ptab <- cbind(V="Variables",pval="pval", n="n")
+
+        ln <- length(x)
+        ii <- 0
+        pb <- utils::txtProgressBar(min=0,max=ln,style=3)
+
         for (v in x) {
           if (v %in% names(data)) {
             ct <- ifelse(is.numeric(data[[v]])==T & categorize==T & length(unique(data[[v]])) <= maxcat,1,0)
@@ -691,6 +735,10 @@ Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, fo
             }
             ptab <- rbind(ptab,cbind(V=rn[q],pval=pval,n=2))
           }
+          if(debug==FALSE) {
+            utils::setTxtProgressBar(pb,ii)
+            ii <- ii + 1
+          }
           q <- q + 1
         }
       }
@@ -698,6 +746,27 @@ Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, fo
     return(ptab)
   }
   ####################### Begin analysis
+  ##### check for x's witch have one unique values...get them out...
+
+
+  ######################### ADDED TKS #########################
+  vv <- NULL
+  j <- 0
+  jj <- NULL
+  for(v in x) {
+    if(length(unique(data[[v]])) < 2) {
+      vv <- c(vv,v)
+      j <- j + 1
+      jj <- c(jj,j)
+    }
+  }
+  warning(paste("The following variables have unique values and will not be included in the analysis:",vv))
+  x <- setdiff(x, vv)
+  if(is.null(rn)==FALSE) {
+    rn <- rn[-jj]
+  }
+  #############################################################
+
   ##### if y is null then make a simple table
   tabaaa1 <- getSimpleTable(x=x, rn=rn, data=data, miss=miss, catmiss=catmiss,formatted=formatted,categorize=categorize,maxcat=maxcat, delzero=delzero)
   tabaaa1 <- tibble::as.tibble(tabaaa1)
@@ -739,19 +808,20 @@ Table1 <- function (x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, fo
         # what to do with dichotomous variables? We remove the "Zero" label...
         # clean unnecesary rows
         if (delzero == TRUE) {
-          tabaaa1 <- tabaaa1 %>%
-            dplyr::filter(Del==0)
+          tabaaa1 <- dplyr::filter(tabaaa1,Del==0)
         }
         ### calculate the p-value
         ptab <- data.frame(pvals(x=x,y=y,rn=rn,data=data,categorize=categorize,maxcat=maxcat))
         names(ptab) <- c("V1","pval","n")
         tabaaa1 <- suppressMessages(dplyr::left_join(tabaaa1, ptab))
-
-        tabaaa1 <- tabaaa1 %>% dplyr::filter(Pop != " -- ") #%>%
+        tabaaa1 <- dplyr::filter(tabaaa1,Pop != " -- ") #%>%
       }
     }
   }
-  tabaaa1 <- tabaaa1 %>% dplyr::select(-n) %>% dplyr::select(-Del)
+
+  tabaaa1 <- dplyr::select(tabaaa1,-n)
+  tabaaa1 <- dplyr::select(tabaaa1,-Del)
+
   ##### Join the tables...
   Sys.setenv(JAVA_HOME="")
   if (excel==1) {
