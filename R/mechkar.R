@@ -526,7 +526,7 @@ exploreData <- function(data=data, y=NULL, rn=NULL, factorSize=10, dir="report",
 ####
 ###################
 
-Table1a <- function(x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, formatted=TRUE, categorize=FALSE,
+Table1 <- function(x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, formatted=TRUE, categorize=FALSE,
                     factorVars=NULL, maxcat=10, delzero=TRUE, decimals=1, messages=TRUE, excel=0, excel_file=NULL,
                     debug=FALSE) {
   ### define sub-functions
@@ -710,10 +710,12 @@ Table1a <- function(x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, fo
               ### first check for homoscedasticity
               tryCatch({
                 if (stats::bartlett.test(data[[v]], data[[y]])[3] >= 0.05) {
-                  pval <- round(as.numeric(car::Anova(stats::lm(data[[v]] ~ data[[y]]))[1, 4]), 3)
+                  pval <- round(as.numeric(suppressMessages(car::Anova(stats::lm(data[[v]] ~ data[[y]])))[1, 4]), 3)
                 } else {
-                  pval <- round(as.numeric(car::Anova(stats::lm(data[[v]] ~ data[[y]]), white.adjust = TRUE)[1, 3]), 3)
+                  pval <- round(as.numeric(suppressMessages(car::Anova(stats::lm(data[[v]] ~ data[[y]]), white.adjust = TRUE))[1, 3]), 3)
                 }
+              }, warning = function(w) {
+                ww <- "suppress warnings..."
               }, error = function(e) {
                 pval <- "---"
               })
@@ -749,7 +751,6 @@ Table1a <- function(x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, fo
   ##### check for x's witch have one unique values...get them out...
 
 
-  ######################### ADDED TKS #########################
   vv <- NULL
   j <- 0
   jj <- NULL
@@ -765,7 +766,6 @@ Table1a <- function(x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, fo
   if(is.null(rn)==FALSE) {
     rn <- rn[-jj]
   }
-  #############################################################
 
   ##### if y is null then make a simple table
   tabaaa1 <- getSimpleTable(x=x, rn=rn, data=data, miss=miss, catmiss=catmiss,formatted=formatted,categorize=categorize,maxcat=maxcat, delzero=delzero)
