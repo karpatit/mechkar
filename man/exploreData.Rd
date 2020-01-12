@@ -59,6 +59,10 @@ exploreData(data=iris)
 
 ## --- Getting data stats for a given dataset, defining also a dependent variable ---
 exploreData('Species', data=iris)
+
+## -- remove report directory
+unlink("report",recursive=TRUE)
+
 ## End(Not run)
 }
 \keyword{ package }

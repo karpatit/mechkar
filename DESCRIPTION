@@ -3,8 +3,8 @@ Type: Package
 Title: Set of Utilities to Help Managing Different Stages of the Research Process
 Version: 1.14.3
 Date: 2020-01-10
-Author: Tomas Karpati MD
-Maintainer: Tomas Karpati MD <karpati@it4biotech.com>
+Authors@R: person("Tomas", "Karpati", email = "karpati@it4biotech.com",
+  role = c("aut", "cre"))
 Description: Utilities that help researchers in their research work.
 URL: https://github.com/karpatit/mechkar
 Depends: R (>= 3.3.0)
