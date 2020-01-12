@@ -4,7 +4,7 @@ Title: Set of Utilities to Help Managing Different Stages of the Research Proces
 Version: 1.14.3
 Date: 2020-01-10
 Authors@R: person("Tomas", "Karpati", email = "karpati@it4biotech.com",
-  role = c("aut", "cre"))
+  role = c("aut", "cre"), comment = c(ORCID = "0000-0003-2650-6192"))
 Description: Utilities that help researchers in their research work.
 URL: https://github.com/karpatit/mechkar
 Depends: R (>= 3.3.0)
