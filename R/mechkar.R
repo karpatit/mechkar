@@ -763,7 +763,7 @@ Table1 <- function(x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, for
   }
   warning(paste("The following variables have unique values and will not be included in the analysis:",vv))
   x <- setdiff(x, vv)
-  if(is.null(rn)==FALSE) {
+  if(is.null(rn)==FALSE & length(jj)>0) {
     rn <- rn[-jj]
   }
 
