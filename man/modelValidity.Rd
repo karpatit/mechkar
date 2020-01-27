@@ -49,4 +49,4 @@ mod <- glm(y~x, family="binomial")
 vt <- modelValidity(data.frame(x=x,y=y),mod,"y")
 
 }
-\keyword{ package }
+

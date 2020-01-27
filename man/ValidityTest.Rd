@@ -73,4 +73,4 @@ Tomas Karpati M.D.
 \examples{
 tab1 <- ValidityTest(110,20,80,324)
 }
-\keyword{ package }
+

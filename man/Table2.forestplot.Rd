@@ -34,4 +34,4 @@ tab2 <- Table2(mod=mod,rv = vn)
 Table2.forestplot(mod)
 Table2.forestplot(mod=mod,nr=rn)
 }
-\keyword{ package }
+

@@ -15,6 +15,7 @@ This function generates a training and test datasets by randomly assigning  indi
 \item{seed}{the desired seed. Using a constant seed value allows to obtain the same individuals on each group when running many times (important feature needed for replicability)}
 \item{tableone}{a logical value indicating if the Table1 function has to be generated for comparing the train and test division. Default is FALSE }
 }
+\value{This function creates new variables using the names entered for the train and test partitions. Additionally, it returns the a table (based on the Table1 function) comparing all the available variables by partition. This helps understanding if the partition is balanced.}
 \author{
 Tomas Karpati M.D.
 }
@@ -26,4 +27,4 @@ df <- Theoph
 df$Subject <- NULL
 train_test(data=df,train_name="train",test_name="test",prop=0.7,seed=2)
 }
-\keyword{ package }
+

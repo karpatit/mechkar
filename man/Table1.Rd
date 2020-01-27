@@ -83,4 +83,4 @@ tab1 <- Table1(x=rv, rn=rn, data=swiss)
 ### get the table 1 and stratify by one variable
 tab1 <- Table1(data=data.frame(HairEyeColor), y="Sex")
 }
-\keyword{ package }
+

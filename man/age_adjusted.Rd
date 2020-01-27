@@ -64,4 +64,4 @@ outcome <- round(runif(150,min=0,max=1),0)
 df <- data.frame(age=age,disease=outcome)
 aa <- age_adjusted(df,"disease","age",agemin=30,agemax=65,source="who",alpha=0.0)
 }
-\keyword{ package }
+

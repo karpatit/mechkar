@@ -20,7 +20,7 @@ if they exist. This column may be of help to show undesirable patterns, e.g. may
 to problems in data recollection .
 }
 \usage{
-exploreData(data = data, y = NULL,  rn = NULL, factorSize = 10, dir = "report",
+exploreData(data = data, y = NULL,  rn = NULL, factorSize = 10, dir = tempdir(),
             debug = FALSE, ...)
 }
 \arguments{
@@ -32,7 +32,8 @@ exploreData(data = data, y = NULL,  rn = NULL, factorSize = 10, dir = "report",
   argument x. If y is not provided, the original variable name will be used.}
   \item{factorSize}{The maximal number of unique values on a continuous variable for
   considering it as a factor.}
-  \item{dir}{The name of the directory to write on the report.}
+  \item{dir}{The name of the directory to write on the report. If dir is not supplied,
+  a temporal directory will be used}
   \item{debug}{Normally, the exploreData function will show a progress bar when running.
   Sometimes the command fails because some anomaly in a variable that was not detected
   by the function. In such case, setting debug to TRUE will print each variable that is
@@ -52,17 +53,11 @@ writting the preliminary reports.
 Tomas Karpati is an Data Researcher at the Clalit Research Institute.
 }
 \examples{
-## Not run:
 ## --- Getting data stats for a given dataset ---
 data(iris)
-exploreData(data=iris)
+exploreData(data=iris, dir=tempdir())
 
 ## --- Getting data stats for a given dataset, defining also a dependent variable ---
-exploreData('Species', data=iris)
-
-## -- remove report directory
-unlink("report",recursive=TRUE)
-
-## End(Not run)
+exploreData('Species', data=iris, dir=tempdir())
 }
-\keyword{ package }
+

@@ -14,7 +14,7 @@
 
 ###################################################
 
-exploreData <- function(data=data, y=NULL, rn=NULL, factorSize=10, dir="report", debug=FALSE, ...) {
+exploreData <- function(data=data, y=NULL, rn=NULL, factorSize=10, dir=tempdir(), debug=FALSE, ...) {
 
   get_computer_type <- function(){
     # check if current R client is running on PC or on the server
@@ -147,7 +147,8 @@ exploreData <- function(data=data, y=NULL, rn=NULL, factorSize=10, dir="report",
     pl <- tryCatch({
       stats::scatter.smooth(df$x,col=df$cl,xlab="index")
     }, warning = function(w) {
-      n <- "warning!"
+      suppressWarnings(w)
+      #n <- "warning!"
     }, error = function(e) {
       n <- "error!"
     }, finally = {
@@ -182,7 +183,8 @@ exploreData <- function(data=data, y=NULL, rn=NULL, factorSize=10, dir="report",
     } else {
       xtrm <- paste(formatC(unique(bp)), collapse=', ' )
     }
-    imgsrc = paste(paste0(srcdir,"/fig/"),imgname, "_2.png",sep="")
+    #imgsrc = paste(paste0(srcdir,"/fig/"),imgname, "_2.png",sep="")
+    imgsrc = paste(paste0("fig/"),imgname, "_2.png",sep="")
     html <- paste0("<div class='Cell'><img class='origimg' src='",imgsrc,"' height='150' width='250'><br> <u>Outlier values</u>: <br> ", xtrm, "</div>")
     return(html)
   }
@@ -210,9 +212,10 @@ exploreData <- function(data=data, y=NULL, rn=NULL, factorSize=10, dir="report",
     dir.create(fig)
   }
   if (get_computer_type()=="pc") {
-    srcdir <- paste0(getwd(),"/",report)
+    srcdir <- report
   } else {
-    srcdir <- paste0("file_show?path=",getwd(),"/",report)
+    #srcdir <- paste0("file_show?path=",getwd(),"/",report)
+    srcdir <- paste0("file_show?path=",getwd())
   }
   # determine which columns are integer
   int_col <- which(sapply(data, is.integer))
@@ -429,7 +432,8 @@ exploreData <- function(data=data, y=NULL, rn=NULL, factorSize=10, dir="report",
       cat(html, file = myhtml, sep='\n', append=TRUE)
       #### initialize the first graph
       imgname = paste(fig,"/",x, "_1.png",sep="")
-      imgsrc = paste(paste0(srcdir,"/fig/"),x, "_1.png",sep="")
+      #imgsrc = paste(paste0(srcdir,"/fig/"),x, "_1.png",sep="")
+      imgsrc = paste("fig/",x, "_1.png",sep="")
       ### send the data with the type to generate the correct graph..
       grDevices::png(imgname)
       drawGraphOne(x, data[[x]], data_types[x])
@@ -456,7 +460,8 @@ exploreData <- function(data=data, y=NULL, rn=NULL, factorSize=10, dir="report",
       # fourth, if y is assigned, make a corresponding plot
       if(is.null(y)==FALSE) {
         imgname = paste(fig,"/",x, "_3.png",sep="")
-        imgsrc = paste(paste0(srcdir,"/fig/"),x, "_3.png",sep="")
+        #imgsrc = paste(paste0(srcdir,"/fig/"),x, "_3.png",sep="")
+        imgsrc = paste("fig/",x, "_3.png",sep="")
         #print(imgname)
         grDevices::png(imgname)
         ### scatter.smooth(data[[x]] ~ data[[y]])
@@ -505,6 +510,7 @@ exploreData <- function(data=data, y=NULL, rn=NULL, factorSize=10, dir="report",
 }
 
 ###################### END exploreData ###############
+
 
 
 ############################################################################
@@ -715,7 +721,8 @@ Table1 <- function(x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, for
                   pval <- round(as.numeric(suppressMessages(car::Anova(stats::lm(data[[v]] ~ data[[y]]), white.adjust = TRUE))[1, 3]), 3)
                 }
               }, warning = function(w) {
-                ww <- "suppress warnings..."
+                suppressWarnings(w)
+                #ww <- "suppress warnings..."
               }, error = function(e) {
                 pval <- "---"
               })
@@ -823,13 +830,14 @@ Table1 <- function(x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, for
   tabaaa1 <- dplyr::select(tabaaa1,-Del)
 
   ##### Join the tables...
-  Sys.setenv(JAVA_HOME="")
+  #Sys.setenv(JAVA_HOME="")
   if (excel==1) {
-    wb <- xlsx::createWorkbook()
-    sheet1 <- xlsx::createSheet(wb, sheetName="Table 1")
-    xlsx::addDataFrame(tabaaa1,sheet1)
+    #wb <- xlsx::createWorkbook()
+    #sheet1 <- xlsx::createSheet(wb, sheetName="Table 1")
+    #xlsx::addDataFrame(tabaaa1,sheet1)
     #### save and close the workbook
-    xlsx::saveWorkbook(wb, excel_file)
+    #xlsx::saveWorkbook(wb, excel_file)
+    writexl::write_xlsx(tabaaa1,excel_file)
     return(tabaaa1)
   } else {
     return(tabaaa1)
@@ -935,6 +943,8 @@ Table2 <- function(mod, rv=NULL,level=0.95, decimals=3) {
 #####   Creation date: 2018-05-17                                       ####
 ############################################################################
 Table2.forestplot <- function(mod, nr=NULL) {
+  opar <- graphics::par(no.readonly = TRUE)
+  on.exit(graphics::par(opar))
   tryCatch({tbA <- Table2(mod)},
            error=function(cond) {
              message("This model type is not supported !")

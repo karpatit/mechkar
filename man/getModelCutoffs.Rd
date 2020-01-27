@@ -48,4 +48,4 @@ mod <- glm(am ~ mpg + cyl + hp + wt, data=mtcars, family="binomial")
 pred <- as.numeric(predict(mod, newdata = mtcars, type="response"))
 tab2 <- getModelCutoffs(pred,mtcars$am)
 }
-\keyword{ package }
+

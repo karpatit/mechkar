@@ -13,6 +13,7 @@ This function return a vector containing the Proportion and 95\% confidence inte
 \item{multi}{a number indicating the way the proportion will be reported. The default is 100 for percent. If the proportion required is per 10,000 set multi=10000}
 \item{ref}{determine which category will be used as reference to be reported. The default is 2 so the proportion for the second category will be reported. If the proportion for the first category must be reported, then set ref to 1}
 }
+\value{This function returns a named numeric vector with the percentage of the highest value of the binary vector and its lower and upper conficence interval.}
 \author{
 Tomas Karpati M.D.
 }
@@ -27,4 +28,4 @@ pp <- PropCI(n)
 ### change the report to the other category
 pp <- PropCI(n,ref=1)
 }
-\keyword{ package }
+

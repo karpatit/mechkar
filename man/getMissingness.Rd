@@ -36,4 +36,4 @@ ind <- aa[[3]]
 complete <- data[ind,]
 incomplete <- data[-ind,]
 }
-\keyword{ package }
+

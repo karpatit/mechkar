@@ -32,4 +32,4 @@ rn <- data.frame(vars=vn,cats=rep("",10))
 
 tab2 <- Table2(mod=mod,rv = vn)
 }
-\keyword{ package }
+
