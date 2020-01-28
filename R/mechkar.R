@@ -716,9 +716,9 @@ Table1 <- function(x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, for
               ### first check for homoscedasticity
               tryCatch({
                 if (stats::bartlett.test(data[[v]], data[[y]])[3] >= 0.05) {
-                  pval <- round(as.numeric(suppressMessages(car::Anova(stats::lm(data[[v]] ~ data[[y]])))[1, 4]), 3)
+                  pval <- suppressMessages(round(as.numeric(suppressMessages(car::Anova(stats::lm(data[[v]] ~ data[[y]])))[1, 4]), 3))
                 } else {
-                  pval <- round(as.numeric(suppressMessages(car::Anova(stats::lm(data[[v]] ~ data[[y]]), white.adjust = TRUE))[1, 3]), 3)
+                  pval <- suppressMessages(round(as.numeric(suppressMessages(car::Anova(stats::lm(data[[v]] ~ data[[y]]), white.adjust = TRUE))[1, 3]), 3))
                 }
               }, warning = function(w) {
                 suppressWarnings(w)
@@ -729,17 +729,21 @@ Table1 <- function(x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, for
             } else if (length(unique(data[[v]]))==1) {
               pval <- NA
             } else {
-              if (min(table(data[[v]],data[[y]])) > 5) {
-                pval <- round(as.numeric(stats::chisq.test(data[[v]],data[[y]])$p.val),3)
-              } else {
-                if(min(table(data[[v]],data[[y]]))==0) {
-                  #in cases where there are cells with zero, we use Fisher's exact test
-                  tryCatch(
-                    pval <- round(as.numeric(stats::fisher.test(data[[v]],data[[y]], workspace=1e9)$p.val),3),
-                    error = function(e) {msg <- c(msg,paste0("Unable to calcualte the Fisher test for variables ",v," and ",y))})
+              if(lenght(unique(data[[v]])) < 15) {
+                if (min(table(data[[v]],data[[y]])) > 5) {
+                  pval <- round(as.numeric(stats::chisq.test(data[[v]],data[[y]])$p.val),3)
                 } else {
-                  pval <- round(as.numeric(stats::kruskal.test(data[[v]],data[[y]], workspace=1e9)$p.val),3)
+                  if(min(table(data[[v]],data[[y]]))==0) {
+                    #in cases where there are cells with zero, we use Fisher's exact test
+                    tryCatch(
+                      pval <- round(as.numeric(stats::fisher.test(data[[v]],data[[y]], workspace=1e9)$p.val),3),
+                      error = function(e) {msg <- c(msg,paste0("Unable to calcualte the Fisher test for variables ",v," and ",y))})
+                  } else {
+                    pval <- round(as.numeric(stats::kruskal.test(data[[v]],data[[y]], workspace=1e9)$p.val),3)
+                  }
                 }
+              } else {
+                pval <- NA
               }
             }
             ptab <- rbind(ptab,cbind(V=rn[q],pval=pval,n=2))
@@ -756,8 +760,6 @@ Table1 <- function(x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, for
   }
   ####################### Begin analysis
   ##### check for x's witch have one unique values...get them out...
-
-
   vv <- NULL
   j <- 0
   jj <- NULL
@@ -863,6 +865,7 @@ train_test <- function(data=NULL,train_name=NULL,test_name=NULL,prop=NULL,seed=1
     vars <- subset(tab, pval < 0.05)$V1
     vars <- setdiff(vars,"traintest_ind_")
     if (length(vars)==0) {
+      message(" ")
       message("You got a perfectly balanced training and test datasets")
       message(" ")
     } else {
