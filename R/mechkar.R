@@ -422,7 +422,7 @@ exploreData <- function(data=data, y=NULL, rn=NULL, factorSize=10, dir=tempdir()
     } else {
 
       if(debug==TRUE) {
-        print(x)
+        message(x)
       } else {
         pb <- utils::txtProgressBar(min=0,max=ln,style=3)
       }
@@ -462,7 +462,6 @@ exploreData <- function(data=data, y=NULL, rn=NULL, factorSize=10, dir=tempdir()
         imgname = paste(fig,"/",x, "_3.png",sep="")
         #imgsrc = paste(paste0(srcdir,"/fig/"),x, "_3.png",sep="")
         imgsrc = paste("fig/",x, "_3.png",sep="")
-        #print(imgname)
         grDevices::png(imgname)
         ### scatter.smooth(data[[x]] ~ data[[y]])
         #suppressWarnings(getScatterGraph(data,x,y,data_types[y]))
@@ -546,12 +545,10 @@ Table1 <- function(x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, for
 
   ### function for transforming variables to factors
   setFactors <- function(data=data, factorVars=factorVars, catmiss=catmiss, maxcat=maxcat) {
-    #print(factorVars)
     if(is.null(factorVars)==T) {
       aa <- sapply(sapply(data, unique), length)
       factorVars <- names(which(aa <= maxcat))
     }
-    #print(factorVars)
     for (v in factorVars) {
       ct <- ifelse( ((is.null(factorVars)==F & (v %in% factorVars)) | (is.null(factorVars)==T & length(unique(data[[v]])) <= maxcat)),1,0)
       if (ct == 1) {
@@ -596,7 +593,6 @@ Table1 <- function(x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, for
         ### treat as numeric
         if (length(unique(data[v]))==0) {
           if (messages==T) {
-            #print(paste("The variable",v,"has no data... avoided"))
             msg <- c(msg, paste("The variable",v,"has no data... avoided"))
           }
         } else if (inherits(data[[v]], "Date")==TRUE) {
@@ -677,7 +673,7 @@ Table1 <- function(x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, for
         utils::setTxtProgressBar(pb,ii)
         ii <- ii + 1
       } else {
-        print(v)
+        message(v)
       }
     }
     if(formatted==TRUE) {
@@ -791,10 +787,10 @@ Table1 <- function(x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, for
       if (is.factor(data[[y]])==F) {
         if (length(levels(factor(data[[y]]))) > 8) {
           if (messages==T) {
-            print("The dependent variable has more than 8 levels, table too large!")
+            message("The dependent variable has more than 8 levels, table too large!")
           }
         } else if(min(table(data[[y]]))==0) {
-          print("The dependent variable has one or more levels with no individuals assigned!")
+          message("The dependent variable has one or more levels with no individuals assigned!")
         } else {
           data[[y]] <- factor(data[[y]])
         }
@@ -1473,6 +1469,6 @@ getMissingness <- function(data, getRows=FALSE) {
     nadf$rn <- seq_len(nrow(data))
     idx <- nadf %>% dplyr::filter(na_cnt==0) %>% dplyr::select(rn)
   }
-  print(list(head(cnt,n=10), msg))
+  message(list(head(cnt,n=10), msg))
   return(list(missingness=cnt, message=msg, rows=idx$rn))
 }
