@@ -65,6 +65,15 @@ this parameter is FALSE}
 The getTable1 function generates a descriptive statistical summary appropriate for
 publishing in a scientific paper.
 }
+\value{
+The Table1 function returns a data frame object containing the descriptive statistics for
+each of the variables defined on the x parameters (if provided) or all the variables(if x
+was not provided). If the parameter y is not defined, only the column for the total
+population  will be returned. If y is defined (and providing that it is categorical with
+less than six categories), additional columns will be added for each of the categories.
+If the parameter excel is true and a path/file is defined, an excell file will be
+generated with the data in the table.
+}
 \author{
 Tomas Karpati M.D.
 }

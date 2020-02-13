@@ -19,6 +19,9 @@ If ommited, the original variable names as appear in the model will be used. }
 The Table2.foresplot function plots a summary table containing the model's risks and its respective confidence intervals and p-values. A forestplot graph is inserted in the middle of the table.
 This function generates a plot that is paper ready. We recommend to save it as PDF file, which let modifying its size without blurring the text.
 }
+\value{
+This function returns a data frame object with the table of the variables with the coeficients of the model and their p-value. Additionally, a graph which includes the table and a forestplot that shows graphically the coeficients is generated.
+}
 \author{
 Tomas Karpati M.D.
 }

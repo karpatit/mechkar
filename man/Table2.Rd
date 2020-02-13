@@ -19,6 +19,9 @@ Table2(mod, rv=NULL, level = 0.95, decimals = 3)
 \details{
 The Table2 function generates a summary table containing the exponent of the model coefficients and the respective confidence intervals and p-values.
 }
+\value{
+This function returns a data frame object with the table of the variables with the coeficients of the model and their p-value
+}
 \author{
 Tomas Karpati M.D.
 }
