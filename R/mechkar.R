@@ -725,7 +725,7 @@ Table1 <- function(x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, for
             } else if (length(unique(data[[v]]))==1) {
               pval <- NA
             } else {
-              if(lenght(unique(data[[v]])) < 15) {
+              if(length(unique(data[[v]])) < 15) {
                 if (min(table(data[[v]],data[[y]])) > 5) {
                   pval <- round(as.numeric(stats::chisq.test(data[[v]],data[[y]])$p.val),3)
                 } else {
