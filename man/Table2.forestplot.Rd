@@ -1,6 +1,5 @@
 \name{Table2.forestplot}
 \alias{Table2.forestplot}
-\docType{package}
 \title{
 Generate a paper ready plot with a risk table and a foresplot
 }

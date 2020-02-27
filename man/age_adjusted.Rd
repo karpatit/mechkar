@@ -1,6 +1,5 @@
 \name{age_adjusted}
 \alias{age_adjusted}
-\docType{package}
 \title{
 Returns age-adjusted proportions with its confidence interval
 }

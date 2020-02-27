@@ -44,7 +44,7 @@ exploreData <- function(data=data, y=NULL, rn=NULL, factorSize=10, dir=tempdir()
     h=graphics::hist(x, breaks=breakstar)
     graphics::plot(h,main="",xlab=imgname)
     yfit<-seq(min(x,na.rm=TRUE),max(x,na.rm=TRUE),length=40)
-    ffit<-stats::dnorm(yfit,mean=mean(x,na.rm=T),sd=stats::sd(x,na.rm=T))
+    ffit<-stats::dnorm(yfit,mean=mean(x,na.rm=TRUE),sd=stats::sd(x,na.rm=TRUE))
     ffit <- ffit*diff(h$mids[1:2])*length(x)
     lines(yfit, ffit, col="blue", lwd=2)
   }
@@ -114,7 +114,7 @@ exploreData <- function(data=data, y=NULL, rn=NULL, factorSize=10, dir=tempdir()
     npct <- formatC(nmiss/N *100)
     s <- summary(x)
     html <- paste("<div class='Cell'> <u>Data type</u>: Date <p> <u>Data length</u>: ",n, "/", N, " (", pct, "%) <br> <u>Missing</u>: ",
-                  nmiss, " (", npct, "%) <p> <u>Min date</u>: ", min(x, na.rm=T), "<br><u>Max date</u>:",max(x, na.rm=T) , "</div>")
+                  nmiss, " (", npct, "%) <p> <u>Min date</u>: ", min(x, na.rm=TRUE), "<br><u>Max date</u>:",max(x, na.rm=TRUE) , "</div>")
     return(html)
   }
 
@@ -535,7 +535,6 @@ Table1 <- function(x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, for
                     factorVars=NULL, maxcat=10, delzero=TRUE, decimals=1, messages=TRUE, excel=0, excel_file=NULL,
                     debug=FALSE) {
   ### define sub-functions
-  options(warn=-1)
   Del <- NULL
   Pop <- NULL
   n <- NULL
@@ -545,24 +544,24 @@ Table1 <- function(x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, for
 
   ### function for transforming variables to factors
   setFactors <- function(data=data, factorVars=factorVars, catmiss=catmiss, maxcat=maxcat) {
-    if(is.null(factorVars)==T) {
+    if(is.null(factorVars)==TRUE) {
       aa <- sapply(sapply(data, unique), length)
       factorVars <- names(which(aa <= maxcat))
     }
     for (v in factorVars) {
-      ct <- ifelse( ((is.null(factorVars)==F & (v %in% factorVars)) | (is.null(factorVars)==T & length(unique(data[[v]])) <= maxcat)),1,0)
+      ct <- ifelse( ((is.null(factorVars)==FALSE & (v %in% factorVars)) | (is.null(factorVars)==TRUE & length(unique(data[[v]])) <= maxcat)),1,0)
       if (ct == 1) {
         data[[v]] <- factor(data[[v]])
-        if(catmiss == T & sum(is.na(data[[v]])==T) > 0) {
+        if(catmiss == TRUE & sum(is.na(data[[v]])==TRUE) > 0) {
           data[[v]] <- factor(data[[v]],levels=c(levels(data[[v]]),"Missing"))
-          data[[v]][which(is.na(data[[v]])==T)] <- "Missing"
+          data[[v]][which(is.na(data[[v]])==TRUE)] <- "Missing"
         }
       }
     }
     return(data)
   }
   ### proceed to convert varibles to factors
-  if (categorize == T | is.null(factorVars)==F ) {
+  if (categorize == TRUE | is.null(factorVars)==FALSE ) {
     data <- setFactors(data, factorVars, catmiss, maxcat)
   }
 
@@ -587,19 +586,19 @@ Table1 <- function(x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, for
     {
       if (v %in% names(data)) {
         ### define if the actual variable has to be treated as numeric or factor
-        ct <- ifelse(is.numeric(data[[v]])==T & categorize==T &
-                       ((is.null(factorVars)==F & (v %in% factorVars)) |
-                          (is.null(factorVars)==T & length(unique(data[[v]])) <= maxcat)),1,0)
+        ct <- ifelse(is.numeric(data[[v]])==TRUE & categorize==TRUE &
+                       ((is.null(factorVars)==FALSE & (v %in% factorVars)) |
+                          (is.null(factorVars)==TRUE & length(unique(data[[v]])) <= maxcat)),1,0)
         ### treat as numeric
         if (length(unique(data[v]))==0) {
-          if (messages==T) {
+          if (messages==TRUE) {
             msg <- c(msg, paste("The variable",v,"has no data... avoided"))
           }
         } else if (inherits(data[[v]], "Date")==TRUE) {
-          if (messages==T) {
+          if (messages==TRUE) {
             msg <- c(msg, paste("The variable",v,"is a date. Dates are not allowed in Table1... avoided"))
           }
-        } else if (is.numeric(data[[v]])==T & ct==0) {
+        } else if (is.numeric(data[[v]])==TRUE & ct==0) {
           ## report mean and standard deviation
           t_n <- g1(data[[v]])
           tp <- paste(format(round(t_n[1],decimals),nsmall=1,big.mark=",")," (", format(round(t_n[2],decimals),nsmall=1,big.mark=","),")",sep="")
@@ -616,7 +615,7 @@ Table1 <- function(x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, for
           tablebbbb <- rbind(tablebbbb,tbl2)
           ## report number and percent of missing
           if (miss >= 1) {
-            datams <- subset(data,is.na(data[[v]])==T)
+            datams <- subset(data,is.na(data[[v]])==TRUE)
             if (nrow(datams)>0) {
               data$cnt <- 1
               datams$cnt <- 1
@@ -645,8 +644,8 @@ Table1 <- function(x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, for
             tableaaaa <- rbind(tableaaaa,tbl1)
             tablebbbb <- rbind(tablebbbb,tbl2)
           }
-          if (miss >= 2 & catmiss==F ) {
-            datams <- subset(data,is.na(data[[v]])==T)
+          if (miss >= 2 & catmiss==FALSE ) {
+            datams <- subset(data,is.na(data[[v]])==TRUE)
             if (nrow(datams)>0) {
               data$cnt <- 1
               datams$cnt <- 1
@@ -664,7 +663,7 @@ Table1 <- function(x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, for
           }
         }
       } else {
-        if (messages==T) {
+        if (messages==TRUE) {
           msg <- c(msg, paste("The variable",v,"doesn't exists in the dataset... avoiding"))
         }
       }
@@ -699,11 +698,11 @@ Table1 <- function(x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, for
 
         for (v in x) {
           if (v %in% names(data)) {
-            ct <- ifelse(is.numeric(data[[v]])==T & categorize==T & length(unique(data[[v]])) <= maxcat,1,0)
-            if (is.numeric(data[[y]])==T & categorize==T & length(unique(data[[y]])) <= maxcat) {
+            ct <- ifelse(is.numeric(data[[v]])==TRUE & categorize==TRUE & length(unique(data[[v]])) <= maxcat,1,0)
+            if (is.numeric(data[[y]])==TRUE & categorize==TRUE & length(unique(data[[y]])) <= maxcat) {
               data[[y]] <- as.factor(data[[y]])
-            } else if (is.numeric(data[[y]])==T) {
-              if (messages==T) {
+            } else if (is.numeric(data[[y]])==TRUE) {
+              if (messages==TRUE) {
                 msg <- c(msg, paste("The variable",y,"is not a factor. Please convert to factor or change the 'categorize' flag to TRUE."))
               }
               pval <- "Please rerun!!!"
@@ -784,9 +783,9 @@ Table1 <- function(x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, for
   ##### if y has two levels, then make a compound comparison
   if (is.null(y)==FALSE){
     if (y %in% names(data)) {
-      if (is.factor(data[[y]])==F) {
+      if (is.factor(data[[y]])==FALSE) {
         if (length(levels(factor(data[[y]]))) > 8) {
-          if (messages==T) {
+          if (messages==TRUE) {
             message("The dependent variable has more than 8 levels, table too large!")
           }
         } else if(min(table(data[[y]]))==0) {
@@ -857,7 +856,7 @@ train_test <- function(data=NULL,train_name=NULL,test_name=NULL,prop=NULL,seed=1
     train[["traintest_ind_"]] <- 1
     test[["traintest_ind_"]] <- 2
     df <- rbind(train, test)
-    tab <- Table1(data=df, y="traintest_ind_",messages = F)
+    tab <- Table1(data=df, y="traintest_ind_",messages = FALSE)
     vars <- subset(tab, pval < 0.05)$V1
     vars <- setdiff(vars,"traintest_ind_")
     if (length(vars)==0) {
@@ -906,9 +905,9 @@ train_test <- function(data=NULL,train_name=NULL,test_name=NULL,prop=NULL,seed=1
 Table2 <- function(mod, rv=NULL,level=0.95, decimals=3) {
   alpha <- 1-level
   msm <- suppressMessages(summary(mod))
-  if(rlang::has_name(msm,"coefficients")==T) {
+  if(rlang::has_name(msm,"coefficients")==TRUE) {
     msm <- msm$coefficients
-  } else if(rlang::has_name(msm,"coef")==T) {
+  } else if(rlang::has_name(msm,"coef")==TRUE) {
     msm <- msm$coef
   }
   if("coxph" %in% class(mod)) {
@@ -992,7 +991,7 @@ Table2.forestplot <- function(mod, nr=NULL) {
       nr[1,"col1"] <- ifelse(nr[1,"vars"]=="(Intercept)","(Intercept)",nr[1,"vars"])
       nr$col1 <- ifelse(nr$vars %in% col3, col3, nr$col1)
       suppressWarnings(suppressMessages(nr <- dplyr::left_join(nr,col3)))
-      nr$col1 <- ifelse(is.na(nr$col3)==T,nr$col1,as.character(nr$col3))
+      nr$col1 <- ifelse(is.na(nr$col3)==TRUE,nr$col1,as.character(nr$col3))
       nr$col1 <- ifelse(grepl(":",nr$vars),nr$vars,nr$col1)
     } else {
       nr <- data.frame(vars=nr)
@@ -1276,7 +1275,7 @@ modelValidity <- function (data, model, class, train=FALSE, calib.graph=FALSE)
   else {
     data$pred <- stats::predict(model, newdata = data, type = "prob")[,2]
   }
-  data <- subset(data, is.na(data[["pred"]])==F)
+  data <- subset(data, is.na(data[["pred"]])==FALSE)
   roc1 <- pROC::roc(data[, class], as.numeric(data[["pred"]]))
   ### GiViTI calibration test
   if(train==FALSE) {
@@ -1284,7 +1283,7 @@ modelValidity <- function (data, model, class, train=FALSE, calib.graph=FALSE)
   } else {
     src="internal"
   }
-  if(is.factor(data[,class])==T) {data[,class] <- as.numeric(data[,class])-1}
+  if(is.factor(data[,class])==TRUE) {data[,class] <- as.numeric(data[,class])-1}
   cb <- givitiR::givitiCalibrationBelt(o=data[,class],e=data[["pred"]],devel=src)
   if(calib.graph==TRUE) {
     graphics::plot(cb, main = "Model calibration", xlab = "Model predicted probability", ylab = "Observed outcome")
@@ -1295,9 +1294,9 @@ modelValidity <- function (data, model, class, train=FALSE, calib.graph=FALSE)
   cm <- table(actual = data[, class], fitted = ifelse(data[["pred"]] >= 0.5, 1, 0))
   mmce <- 1 - (sum(diag(cm))/sum(cm))
   #d <- sjstats::cod(model)$cod
-  if (is.factor(data[, class])==T) {data[,class] <- as.numeric(data[, class])-1}
+  if (is.factor(data[, class])==TRUE) {data[,class] <- as.numeric(data[, class])-1}
   acc <- ROSE::accuracy.meas(data[,class],data[["pred"]])
-  srme <-sqrt((sum((data[, class] - data[["pred"]])^2,na.rm=T))/nrow(data))
+  srme <-sqrt((sum((data[, class] - data[["pred"]])^2,na.rm=TRUE))/nrow(data))
   vld <- cbind(auc = roc1$auc, cimin = pROC::ci(roc1)[1], cimax = pROC::ci(roc1)[3],
                SRME = srme,
                precision = acc$precision, recall = acc$recall, fscore = acc$F,
@@ -1328,7 +1327,7 @@ getModelCutoffs <- function(pred, obs, div=10) {
     return(cbind(cutoff=cutoff,TP=a,FP=b,FN=c,TN=d,sensitivity=sensit,specificity=specif,PPV=ppv,NPV=npv,accuracy=acc,error=er,prevalence=prev,lift=lift,precision=prec,recall=recall,F1_score=f1))
   }
   getQuintiles <- function(x,div=div) {
-    cut(x, breaks=c(stats::quantile(x, probs = seq(0, 1, by = 1/div),na.rm = T)),
+    cut(x, breaks=c(stats::quantile(x, probs = seq(0, 1, by = 1/div),na.rm = TRUE)),
         include.lowest=TRUE)
   }
   dc <- getQuintiles(pred,div=div)
@@ -1448,7 +1447,7 @@ getMissingness <- function(data, getRows=FALSE) {
   cnt <- NULL
   miss <- function(x) return(sum(is.na(x) ))
   for(n in vn) {
-    nadf[[n]] <- ifelse(is.na(nadf[[n]])==T,1,0)
+    nadf[[n]] <- ifelse(is.na(nadf[[n]])==TRUE,1,0)
     cnt <- rbind(cnt, data.frame(n,sum(nadf[[n]])))
   }
   names(cnt) <- c("var","na_count")

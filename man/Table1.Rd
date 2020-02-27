@@ -1,6 +1,5 @@
 \name{Table1}
 \alias{Table1}
-\docType{package}
 \title{
 Print or export a formatted Table 1
 }

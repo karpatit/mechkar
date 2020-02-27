@@ -1,6 +1,5 @@
 \name{getModelCutoffs}
 \alias{getModelCutoffs}
-\docType{package}
 \title{
 Function for selection of the prediction cutoffs by each quantile of the prediction
 }

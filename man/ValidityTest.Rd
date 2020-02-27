@@ -1,6 +1,5 @@
 \name{ValidityTest}
 \alias{ValidityTest}
-\docType{package}
 \title{
 Print a formatted table with the validity test for the results of a screening or a predictive model
 }

@@ -1,6 +1,5 @@
 \name{modelValidity}
 \alias{modelValidity}
-\docType{package}
 \title{
 Return discriminative and calibration measures for predictive models
 }

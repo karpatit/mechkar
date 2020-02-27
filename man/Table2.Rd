@@ -1,6 +1,5 @@
 \name{Table2}
 \alias{Table2}
-\docType{package}
 \title{
 Print a formatted table with the Odds/Hazard ratios from a given model
 }
