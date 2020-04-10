@@ -1277,6 +1277,7 @@ modelValidity <- function (data, model, class, train=FALSE, calib.graph=FALSE)
   cm <- table(actual = data[, class], fitted = ifelse(data[["pred"]] >= 0.5, 1, 0))
   mmce <- 1 - (sum(diag(cm))/sum(cm))
   #d <- sjstats::cod(model)$cod
+  vr <- MASS::stdres(model)
   if (is.factor(data[, class])==TRUE) {data[,class] <- as.numeric(data[, class])-1}
   acc <- ROSE::accuracy.meas(data[,class],data[["pred"]])
   srme <-sqrt((sum((data[, class] - data[["pred"]])^2,na.rm=TRUE))/nrow(data))

@@ -25,7 +25,8 @@ This function returns a data frame object with the table of the variables with t
 Tomas Karpati M.D.
 }
 \examples{
-df <- MASS::biopsy[,2:11]
+utils::data(biopsy, package = "MASS")
+df <- biopsy[,2:11]
 mod <- glm(class ~ ., data=df ,family = "binomial")
 vn <- c("Intercept","clump thickness","uniformity cell size","uniformity cell shape",
         "marginal adhesion","epithelial cell size","bare nuclei",
