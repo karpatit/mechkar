@@ -16,16 +16,6 @@
 
 exploreData <- function(data=data, y=NULL, rn=NULL, factorSize=10, dir=tempdir(), debug=FALSE, ...) {
 
-  get_computer_type <- function(){
-    # check if current R client is running on PC or on the server
-    if (Sys.info()[1] == "Windows") {
-      computer.type = "pc"
-    } else if (Sys.info()[1] == "Linux") {
-      computer.type = "server"
-    }
-    return(computer.type)
-  }
-
   whatVarType <- function(var) {
     suppressWarnings(if (var=="integer" | var=="numeric") {
       return(1)
@@ -211,12 +201,8 @@ exploreData <- function(data=data, y=NULL, rn=NULL, factorSize=10, dir=tempdir()
   if (!file.exists(fig)) {
     dir.create(fig)
   }
-  if (get_computer_type()=="pc") {
-    srcdir <- report
-  } else {
-    #srcdir <- paste0("file_show?path=",getwd(),"/",report)
-    srcdir <- paste0("file_show?path=",getwd())
-  }
+  srcdir <- report
+
   # determine which columns are integer
   int_col <- which(sapply(data, is.integer))
   int_col <- c(int_col,(which(sapply(data, is.numeric))))
@@ -501,11 +487,8 @@ exploreData <- function(data=data, y=NULL, rn=NULL, factorSize=10, dir=tempdir()
                 </body></html>
                 ")
   cat(html, file = myhtml, sep='\n', append=TRUE)
-  if(.Platform$OS.type == "unix") {
-    system(paste("start /b ", myhtml))
-  } else {
-    shell(paste("explorer ", gsub("/", "\\\\", myhtml) ), intern=TRUE)
-  }
+  ## call the default browser or the one which is open (if any)
+  browseURL(myhtml)
 }
 
 ###################### END exploreData ###############
