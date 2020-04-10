@@ -5,7 +5,9 @@ This package offer a function that automate the exploratory data analysis, a fun
 
 This package is now in CRAN and can be installed as usual:
 
+<code>
 install.packages("mechkar")
+</code>
 
 It can also be installed from GitHub using the devtools package provides install_github() that enables installing packages from GitHub.
 
