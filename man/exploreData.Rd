@@ -55,9 +55,13 @@ Tomas Karpati is an Data Researcher at the Clalit Research Institute.
 \examples{
 ## --- Getting data stats for a given dataset ---
 data(iris)
-exploreData(data=iris, dir=tempdir())
+dr <- tempdir()
+mechkar::exploreData(data=iris, dir=dr)
+unlink(dr,recursive = TRUE, force=TRUE)
 
 ## --- Getting data stats for a given dataset, defining also a dependent variable ---
-exploreData('Species', data=iris, dir=tempdir())
+dr <- tempdir()
+mechkar::exploreData(y='Species', data=iris, dir=dr)
+unlink(dr,recursive = TRUE, force=TRUE)
 }
 

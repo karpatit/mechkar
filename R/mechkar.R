@@ -756,7 +756,7 @@ Table1 <- function(x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, for
 
   ##### if y is null then make a simple table
   tabaaa1 <- getSimpleTable(x=x, rn=rn, data=data, miss=miss, catmiss=catmiss,formatted=formatted,categorize=categorize,maxcat=maxcat, delzero=delzero)
-  tabaaa1 <- tibble::as.tibble(tabaaa1)
+  tabaaa1 <- tibble::as_tibble(tabaaa1)
   ############################  CHANGE TO 5 !!!!!!!!!!!!!!
   if(length(tabaaa1) > 5) {
     names(tabaaa1) <- c("Del","V1","V2","n","Pop","pop2","pop3")
