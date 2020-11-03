@@ -1,0 +1,7 @@
+exportPattern("^[[:alpha:]]+")
+importFrom("graphics", "lines", "plot","abline","hist","par")
+importFrom("utils", "data", "head","globalVariables","browseURL")
+importFrom("Hmisc", "%nin%")
+importFrom("ggplot2", "ggplot", "aes","xlab","ylab","labs","geom_smooth","geom_boxplot",".data")
+importFrom("writexl","write_xlsx")
+importFrom("MASS","stdres")
