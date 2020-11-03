@@ -8,6 +8,7 @@
 #####   DATA VISUALIZATION                                              ####
 #####   Author: Tomas Karpati M.D.                                      ####
 #####   Creation date: 2014-03-12                                       ####
+#####   Last Modified: 2020-11-03                                       ####
 ############################################################################
 
 ###########  Functions   ##############################################
@@ -154,12 +155,12 @@ exploreData <- function(data=data, y=NULL, rn=NULL, factorSize=10, dir=tempdir()
     return(pl)
   }
 
+  #' @importFrom rlang .data
   getScatterGraph <- function(df=data,x,y,dtype=1) {
-    #  mod <- tryCatch({
     if(dtype==1) {
-      pl <- ggplot2::ggplot(df) + ggplot2::geom_smooth(ggplot2::aes(x=data[[x]], y=data[[y]]), method="loess") + ggplot2::xlab(x) + ggplot2::ylab(y)
+      pl <- ggplot2::ggplot(df) + ggplot2::geom_smooth(ggplot2::aes(x=.data[[x]], y=.data[[y]]), method="loess") + ggplot2::xlab(x) + ggplot2::ylab(y)
     } else {
-      pl <- ggplot2::ggplot(df) + ggplot2::geom_boxplot(ggplot2::aes(y=data[[x]], color=data[[y]])) + ggplot2::xlab(x) + ggplot2::ylab(y) + ggplot2::labs(color=y)
+      pl <- ggplot2::ggplot(df) + ggplot2::geom_boxplot(ggplot2::aes(y=.data[[x]], color=.data[[y]])) + ggplot2::xlab(x) + ggplot2::ylab(y) + ggplot2::labs(color=y)
     }
     return(pl)
   }
@@ -465,6 +466,7 @@ exploreData <- function(data=data, y=NULL, rn=NULL, factorSize=10, dir=tempdir()
       }
     }
   }
+  utils::setTxtProgressBar(pb,ln)
   html <- paste("</div>")
   cat(html, file = myhtml, sep='\n', append=TRUE)
   # end table
@@ -494,12 +496,11 @@ exploreData <- function(data=data, y=NULL, rn=NULL, factorSize=10, dir=tempdir()
 ###################### END exploreData ###############
 
 
-
 ############################################################################
 #####   TABLE 1                                                         ####
 #####   Author: Tomas Karpati M.D.                                      ####
 #####   Creation date: 2016-03-09                                       ####
-#####   Last Modified: 2018-12-19                                       ####
+#####   Last Modified: 2020-11-03                                       ####
 ############################################################################
 
 ####################  FUNCTIONS  ###########################################
@@ -524,7 +525,7 @@ Table1 <- function(x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, for
   g1 <- function(var)c(Mean=mean(var,na.rm=TRUE), SD=stats::sd(var,na.rm=TRUE))
   g2 <- function(var)c(Median=stats::median(var,na.rm=TRUE), IQR=stats::quantile(var,c(0.25,0.75),na.rm=TRUE))
   msg <- NULL
-
+  
   ### function for transforming variables to factors
   setFactors <- function(data=data, factorVars=factorVars, catmiss=catmiss, maxcat=maxcat) {
     if(is.null(factorVars)==TRUE) {
@@ -547,7 +548,7 @@ Table1 <- function(x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, for
   if (categorize == TRUE | is.null(factorVars)==FALSE ) {
     data <- setFactors(data, factorVars, catmiss, maxcat)
   }
-
+  
   getSimpleTable  <- function(x=x, rn=rn, data=data, miss=miss, catmiss=catmiss,formatted=formatted,
                               categorize=categorize,maxcat=maxcat, delzero=delzero) {
     if (is.null(x)==TRUE) { x <- names(data)}
@@ -575,11 +576,11 @@ Table1 <- function(x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, for
         ### treat as numeric
         if (length(unique(data[v]))==0) {
           if (messages==TRUE) {
-            msg <- c(msg, paste("The variable",v,"has no data... avoided"))
+            msg <- c(msg, paste("The variable",v,"has no data; avoided"))
           }
         } else if (inherits(data[[v]], "Date")==TRUE) {
           if (messages==TRUE) {
-            msg <- c(msg, paste("The variable",v,"is a date. Dates are not allowed in Table1... avoided"))
+            msg <- c(msg, paste("The variable",v,"is a date. Dates are not allowed in Table1; avoided"))
           }
         } else if (is.numeric(data[[v]])==TRUE & ct==0) {
           ## report mean and standard deviation
@@ -647,7 +648,7 @@ Table1 <- function(x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, for
         }
       } else {
         if (messages==TRUE) {
-          msg <- c(msg, paste("The variable",v,"doesn't exists in the dataset... avoiding"))
+          msg <- c(msg, paste("The variable",v,"doesn't exists in the dataset; avoiding"))
         }
       }
       q <- q + 1
@@ -665,7 +666,7 @@ Table1 <- function(x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, for
     }
     close(pb)
   }
-
+  
   pvals <- function(x=x,y=y,rn=rn,data=data,categorize=categorize,maxcat=maxcat) {
     ptab <- NULL
     if (is.null(y)==FALSE) {
@@ -674,11 +675,11 @@ Table1 <- function(x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, for
         if (is.null(rn)==TRUE | length(rn)<2) {rn <- x}
         q <- 1
         ptab <- cbind(V="Variables",pval="pval", n="n")
-
+        
         ln <- length(x)
         ii <- 0
-        pb <- utils::txtProgressBar(min=0,max=ln,style=3)
-
+        pb <- utils::txtProgressBar(min=0,max=ln-1,style=3)
+        
         for (v in x) {
           if (v %in% names(data)) {
             ct <- ifelse(is.numeric(data[[v]])==TRUE & categorize==TRUE & length(unique(data[[v]])) <= maxcat,1,0)
@@ -700,7 +701,7 @@ Table1 <- function(x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, for
                 }
               }, warning = function(w) {
                 suppressWarnings(w)
-                #ww <- "suppress warnings..."
+                #ww <- "suppress warnings"
               }, error = function(e) {
                 pval <- "---"
               })
@@ -737,7 +738,7 @@ Table1 <- function(x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, for
     return(ptab)
   }
   ####################### Begin analysis
-  ##### check for x's witch have one unique values...get them out...
+  ##### check for x's witch have one unique values, get them out.
   vv <- NULL
   j <- 0
   jj <- NULL
@@ -748,15 +749,18 @@ Table1 <- function(x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, for
       jj <- c(jj,j)
     }
   }
-  warning(paste("The following variables have unique values and will not be included in the analysis:",vv))
-  x <- setdiff(x, vv)
-  if(is.null(rn)==FALSE & length(jj)>0) {
-    rn <- rn[-jj]
+  
+  if (length(vv)>0) {
+    warning(paste("The following variables have unique values and will not be included in the analysis:",vv))
+    x <- setdiff(x, vv)
+    if(is.null(rn)==FALSE & length(jj)>0) {
+      rn <- rn[-jj]
+    }
   }
-
+  
   ##### if y is null then make a simple table
   tabaaa1 <- getSimpleTable(x=x, rn=rn, data=data, miss=miss, catmiss=catmiss,formatted=formatted,categorize=categorize,maxcat=maxcat, delzero=delzero)
-  tabaaa1 <- tibble::as_tibble(tabaaa1)
+  tabaaa1 <- as.data.frame(tabaaa1)
   ############################  CHANGE TO 5 !!!!!!!!!!!!!!
   if(length(tabaaa1) > 5) {
     names(tabaaa1) <- c("Del","V1","V2","n","Pop","pop2","pop3")
@@ -782,41 +786,44 @@ Table1 <- function(x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, for
           dtsub <- subset(data, data[[y]]==lv)
           tab <- getSimpleTable(x=x, rn=rn, data=dtsub, miss=miss, catmiss=catmiss, formatted=formatted,categorize=categorize,maxcat=maxcat, delzero=delzero)
           tab <- data.frame(tab)
-          ############################  CHANGE TO 5 !!!!!!!!!!!!!!
+          ############################  
           if(length(tab) > 5) {
             names(tab) <- c("Del","V1","V2","n",paste0(lv,"_1"),paste0(lv,"_2"),paste0(lv,"_3"))
           } else {
             names(tab) <- c("Del","V1","V2","n",lv)
           }
-          ############################  CHANGE TO 5 !!!!!!!!!!!!!!
+          ############################  
           tab[1,5] <- lv
-          tabaaa1 <- suppressMessages(dplyr::left_join(tabaaa1, tab))
+          tabaaa1 <- base::merge(tabaaa1, tab, all.x=TRUE)
         }
-        # what to do with dichotomous variables? We remove the "Zero" label...
+        # what to do with dichotomous variables? We remove the "Zero" label
         # clean unnecesary rows
         if (delzero == TRUE) {
-          tabaaa1 <- dplyr::filter(tabaaa1,Del==0)
+          tabaaa1 <- tabaaa1[tabaaa1$Del==0,]
         }
         ### calculate the p-value
         ptab <- data.frame(pvals(x=x,y=y,rn=rn,data=data,categorize=categorize,maxcat=maxcat))
         names(ptab) <- c("V1","pval","n")
-        tabaaa1 <- suppressMessages(dplyr::left_join(tabaaa1, ptab))
-        tabaaa1 <- dplyr::filter(tabaaa1,Pop != " -- ") #%>%
+        tabaaa1 <- base::merge(tabaaa1, ptab,all.x=TRUE)
+        tabaaa1 <- tabaaa1[tabaaa1$Pop != " -- ",]
       }
     }
   }
-
-  tabaaa1 <- dplyr::select(tabaaa1,-n)
-  tabaaa1 <- dplyr::select(tabaaa1,-Del)
-
-  ##### Join the tables...
-  #Sys.setenv(JAVA_HOME="")
+  
+  tabaaa1$n <- NULL
+  tabaaa1$Del <- NULL
+  ### format the table for printing
+  n <- ncol(tabaaa1)
+  names(tabaaa1)[1] <- "Variables"
+  names(tabaaa1)[2] <- ""
+  names(tabaaa1)[3] <- "Population"
+  names(tabaaa1)[n] <- "p-value"
+  tabaaa1[,n] <- as.character(tabaaa1[,n])
+  tabaaa1[,n] <- ifelse(is.na(tabaaa1[,n]),"",tabaaa1[,n])
+  tabaaa1[,n] <- ifelse(tabaaa1[,n]=='0',"<0.001",tabaaa1[,n])
+  
+  ##### check for export to excel
   if (excel==1) {
-    #wb <- xlsx::createWorkbook()
-    #sheet1 <- xlsx::createSheet(wb, sheetName="Table 1")
-    #xlsx::addDataFrame(tabaaa1,sheet1)
-    #### save and close the workbook
-    #xlsx::saveWorkbook(wb, excel_file)
     writexl::write_xlsx(tabaaa1,excel_file)
     return(tabaaa1)
   } else {
@@ -826,10 +833,12 @@ Table1 <- function(x=NULL, y=NULL, rn=NULL, data=NULL, miss=3, catmiss=TRUE, for
 
 ########################## END Table1 ###############
 
+
 ############################################################################
 #####   TEST & TRAIN DATASET GENERATION                                 ####
 #####   Author: Tomas Karpati M.D.                                      ####
 #####   Creation date: 2016-08-17                                       ####
+#####   Last Modified: 2020-11-03                                       ####
 ############################################################################
 
 train_test <- function(data=NULL,train_name=NULL,test_name=NULL,prop=NULL,seed=123,tableone=FALSE)
@@ -867,7 +876,10 @@ train_test <- function(data=NULL,train_name=NULL,test_name=NULL,prop=NULL,seed=1
   message(paste(" + Train dataset:", train_name))
   message(paste(" + Test dataset:", test_name))
   if(tableone==TRUE) {
-    tab = checkTrainTest(get(train_name),get(test_name))
+    tab <- checkTrainTest(get(train_name),get(test_name))
+    tab <- tab[tab[,1]!="traintest_ind_",]
+    names(tab)[4] <- train_name
+    names(tab)[5] <- test_name
     return(tab)
   }
 }
@@ -912,6 +924,8 @@ Table2 <- function(mod, rv=NULL,level=0.95, decimals=3) {
   tb <- data.frame(cbind(Estimate=exp_coef,'CI_lo'=dd1,'CI_hi'=dd2,'p value'=p_value))
   if (is.null(rv)==FALSE) {
     row.names(tb) <- rv
+  } else {
+    row.names(tb) <- names(mod$coefficients)
   }
   return(tb)
 }
@@ -973,7 +987,7 @@ Table2.forestplot <- function(mod, nr=NULL) {
       nr$col2 <- ifelse(nr$vars %nin% col2, col2, " ")
       nr[1,"col1"] <- ifelse(nr[1,"vars"]=="(Intercept)","(Intercept)",nr[1,"vars"])
       nr$col1 <- ifelse(nr$vars %in% col3, col3, nr$col1)
-      suppressWarnings(suppressMessages(nr <- dplyr::left_join(nr,col3)))
+      nr <- merge(nr,col3, x.all=TRUE)
       nr$col1 <- ifelse(is.na(nr$col3)==TRUE,nr$col1,as.character(nr$col3))
       nr$col1 <- ifelse(grepl(":",nr$vars),nr$vars,nr$col1)
     } else {
@@ -1250,6 +1264,7 @@ ValidityTest <- function (a, b, c, d, multi = 100, caption = "Validity of the Mo
 #####   Author: Tomas Karpati M.D.                                      ####
 #####   Creation date: 2016-12-01                                       ####
 ############################################################################
+
 modelValidity <- function (data, model, class, train=FALSE, calib.graph=FALSE)
 {
   if ("glm" %in% class(model) | "earth" %in% class(model)) {
@@ -1335,62 +1350,61 @@ getModelCutoffs <- function(pred, obs, div=10) {
 #####   AGE ADJUSTED RATES                                              ####
 #####   Author: Tomas Karpati M.D.                                      ####
 #####   Creation date: 2017-05-07                                       ####
+#####   Last Modified: 2020-11-03                                       ####
 ############################################################################
-age_adjusted <- function(dataset,outcome,age,agemin=0,agemax=130,source="who",alpha=0.05) {
-  #utils::globalVariables(c("weight","n","weighted_pct","outcome1","wght","adj","res","pop"))
-  weight <- n <- outcm1 <- wght <- pop <- adj <- res <- NULL
-  ###### generate tables
-  age_group <- c("0-4","5-9","10-14","15-19","20-24","25-29","30-34",
-                 "35-39","40-44","45-49","50-54","55-59","60-64",
-                 "65-69","70-74","75-79","80-84","85-89","90-94",
-                 "95-99","100+")
 
-  age_min <- seq(0,100,5)
-  age_max <- c(seq(4,99,5),130)
-  who <- c(8860,8690,8600,8470,8220,7930,7610,7150,6590,6040,5370,
-           4550,3720,2960,2210,1520,910,440,150,40,5)
-  euro <- c(5000,5500,5500,5500,6000,6000,6500,7000,7000,7000,
-           7000,6500,6000,5500,5000,4000,2500,1500,800,180,20)
-  us <- c(20201362,20348657,20677194,22040343,21585999,21101849,
-          19962099,20179642,20890964,22708591,22298125,19664805,
-          16817924,12435263,9278166,7317795,5743327,3620459,
-          1448366,371244,53364)
-  age.adjust <- tibble::tibble(age_group, age_min, age_max, who, euro, us)
+
+age_adjusted <- function(dataset,outcome,age,agemin=0,agemax=130,source="who",alpha=0.05) {
+  weight <- n <- outcm1 <- wght <- pop <- adj <- res <- NULL
   weighted_pct <- function(dataset,outcome,age,source,agemin,agemax) {
-    weighting <- age.adjust %>%
-      dplyr::select_(~age_group, ~age_min, ~age_max, source)
-    weighting <- weighting %>% dplyr::filter_(~age_min >= agemin, ~age_max <= agemax)
-    ages <- tibble::tibble(age=seq(0,120,1))
-    ages <- ages %>% dplyr::mutate(age_min = ifelse((age/10)-floor(age/10) < 0.5, floor(age/10)*10, (floor(age/10)*10)+5),
-                            age_max = ifelse((age/10)-floor(age/10) < 0.5, (floor(age/10)*10)+4, (floor(age/10)*10)+9))
-    ages <- ages %>% dplyr::mutate(age_min=replace(age_min, age_min > 100,100),
-                            age_max=replace(age_max, age_max > 100, 130))
+    ###### generate tables
+    age_group <- c("0-4","5-9","10-14","15-19","20-24","25-29","30-34",
+                   "35-39","40-44","45-49","50-54","55-59","60-64",
+                   "65-69","70-74","75-79","80-84","85-89","90-94",
+                   "95-99","100+")
+    
+    age_min <- seq(0,100,5)
+    age_max <- c(seq(4,99,5),130)
+    who <- c(8860,8690,8600,8470,8220,7930,7610,7150,6590,6040,5370,
+             4550,3720,2960,2210,1520,910,440,150,40,5)
+    euro <- c(5000,5500,5500,5500,6000,6000,6500,7000,7000,7000,
+              7000,6500,6000,5500,5000,4000,2500,1500,800,180,20)
+    us <- c(20201362,20348657,20677194,22040343,21585999,21101849,
+            19962099,20179642,20890964,22708591,22298125,19664805,
+            16817924,12435263,9278166,7317795,5743327,3620459,
+            1448366,371244,53364)    
+    age.adjust <- data.frame(age_group, age_min, age_max, who, euro, us)
+    vn <- c('age_group', 'age_min', 'age_max', source)
+    weighting <- age.adjust[age.adjust$age_min>=agemin & age.adjust$age_max<=agemax,vn]
+    ages <- data.frame(age=seq(0,120,1))
+    
+    ages$age_min <- ifelse((ages$age/10)-floor(ages$age/10) < 0.5, floor(ages$age/10)*10, (floor(ages$age/10)*10)+5)
+    ages$age_max <- ifelse((ages$age/10)-floor(ages$age/10) < 0.5, (floor(ages$age/10)*10)+4, (floor(ages$age/10)*10)+9)
+    ages$age_min <- replace(ages$age_min, ages$age_min > 100,100)
+    ages$age_max <- replace(ages$age_max, ages$age_max > 100, 130)
+    
     ##### take the correct weighting
     tot <- sum(weighting[,source])
-    weighting <- weighting %>%
-      dplyr::mutate_(weight=source) %>%
-      dplyr::mutate(weight=(weight/tot))
-    weighting <- suppressMessages(dplyr::inner_join(weighting, ages))
+    weighting$weight <- weighting[[source]]/tot
+    #weighting <- weighting[ages, on=c("age_min","age_max"), nomatch=0]
+    weighting <- merge(weighting, ages, by=c("age_min","age_max"))
     dataset[,"outcome"] <- ifelse(dataset[,outcome]==1,1,0)
+    
     ### correct for age names to be able to do the joint
     dataset[,"age"] <- dataset[,age]
+    dataset <- data.frame(dataset)
     unw <- (table(dataset[,"outcome"])/nrow(dataset))[2]
-    d1 <- suppressMessages(dplyr::inner_join(dataset, weighting))
+    
+    #d1 <- dataset[weighting, on="age", nomatch=0]
+    d1 <- merge(dataset, weighting, by="age")
+    
     #### we have yet calculated the weight.. use it!!!!
-    d1 <- d1 %>%
-      dplyr::select(age_group, weight, outcome)#, tot)
-    d2 <- d1 %>%
-      dplyr::group_by(age_group) %>%
-      dplyr::select(age_group, weight, outcome) %>%
-      dplyr::summarise(outcm1=sum(outcome),
-                wght=max(weight),
-                pop=n()) %>%
-      dplyr::select(outcm1,wght,pop)
+    d1 <- d1[,c("age_group","weight","outcome")]
+    d2 <-data.frame(outcm1 = (stats::aggregate(d1$outcome, by=list(d1$age_group),FUN=function(x) sum(x)))$x)
+    d2$wght <- (stats::aggregate(d1$weight, by=list(d1$age_group),FUN=function(x) max(x)))$x
+    d2$pop <- (stats::aggregate(d1$outcome, by=list(d1$age_group),FUN=function(x) length(x)))$x
     d2$adj <- (d2$wght * d2$outcm1)/d2$pop
-    wgt <- d2 %>%
-      dplyr::summarise(res=sum(adj)) %>%
-      dplyr::select(res) %>%
-      as.numeric()
+    wgt <- sum(d2$adj)
     return(cbind(unw,wgt))
   }
   t1 <- nrow(dataset)
@@ -1406,28 +1420,26 @@ age_adjusted <- function(dataset,outcome,age,agemin=0,agemax=130,source="who",al
              weighted=list(rate=res1[2]*100.0,
                            CImin=wgt1[2]*100.0,
                            CImax=wgt1[3]*100.0)
-             )
-  #g1 <- data.frame(Outcome=outcome,Population=t1,Events=evnt1,CrudeRate=res1[1]*100.0,
-  #                 'CR[CImin]'=unw1[2]*100.0,'CR[CImax]'=unw1[3]*100.0,
-  #                 WeightedRate=res1[2]*100.0,'WR0[CImin]'=wgt1[2]*100.0,
-  #                 'WR[CImax]'=wgt1[3]*100.0)
+  )
   return(g1)
 }
+
 
 ############################################################################
 #####   GET THE MISSINGNESS OF A DATASET                                ####
 #####   Author: Tomas Karpati M.D.                                      ####
 #####   Creation date: 2017-05-07                                       ####
+#####   Last Modified: 2020-11-03                                       ####
 ############################################################################
 ### search for the number & % of missinf
 ### then count the number of rows with complete data
+
 getMissingness <- function(data, getRows=FALSE) {
-  #utils::globalVariables(c("desc","na_count","na_cnt","rn","pred","dc"))
   desc <- na_count <- na_cnt <- rn <- pred <- dc <- NULL
   l <- nrow(data)
   vn <- names(data)
   ### copy the dataset and replace the NAs by 1 else 0
-  nadf <- data
+  nadf <- data.frame(data)
   cnt <- NULL
   miss <- function(x) return(sum(is.na(x) ))
   for(n in vn) {
@@ -1439,19 +1451,21 @@ getMissingness <- function(data, getRows=FALSE) {
   ### now sum by column
   nadf$na_cnt <- 0
   nadf$na_cnt <- rowSums(nadf)
-  ### order descending the count of mossings and leave only those with missings
-  cnt <- cnt %>%
-    dplyr::arrange(desc(na_count)) %>%
-    dplyr::filter(na_count>0)
-  #totmiss <- nadf %>% dplyr::filter(na_cnt==0) %>% dplyr::tally()
-  totmiss <- nadf %>% dplyr::filter(na_cnt==0) %>% dplyr::summarise(n=n())
+  ### order descending the count of missings and leave only those with missings
+  cnt <- cnt[cnt$na_count>0,]
+  #cnt <- cnt[order(-rank(cnt$na_count))]
+  cnt <- cnt[order(-(cnt$na_count)),]
+  #totmiss <- nrow(nadf[nadf$na_cnt==0])
+  totmiss <- nrow(nadf[nadf$na_cnt==0,])
+  
   idx <- NULL
   msg <- (paste("This dataset has ", as.character(totmiss), " (",as.character(round(totmiss/nrow(data)*100,1)),"%)" ," complete rows. Original data has ",nrow(data)," rows.",sep=""))
   ### check id needs to return the row indexes
   if(getRows==TRUE & totmiss != 0) {
-    nadf$rn <- seq_len(nrow(data))
-    idx <- nadf %>% dplyr::filter(na_cnt==0) %>% dplyr::select(rn)
+    nadf$rn <- base::seq_len(nrow(data))
+    idx <- nadf[nadf$na_cnt==0, "rn"]
   }
-  message(list(head(cnt,n=10), msg))
-  return(list(missingness=cnt, message=msg, rows=idx$rn))
+  message(msg)
+  #return(list(missingness=cnt, message=msg, rows=idx$rn))
+  return(list(missingness=cnt, message=msg, rows=idx))
 }
